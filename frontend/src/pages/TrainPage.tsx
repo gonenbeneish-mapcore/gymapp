@@ -14,6 +14,7 @@ import { doneSetCount, nextWorkout, sameDay, volume, weekDays } from "../domain/
 import { MUSCLE_LABEL } from "../domain/labels";
 import { clock, kg, shortDate, thousands } from "../domain/format";
 import { useNow } from "../lib/useNow";
+import { BackupReminder } from "./BackupReminder";
 
 /** Two-letter tile label from the first word: Push → Ph, Pull → Pl, Leg → Lg. */
 function initials(name: string) {
@@ -93,6 +94,8 @@ export function TrainPage() {
           </Link>
         }
       />
+
+      {active ? null : <BackupReminder />}
 
       {loading ? (
         <div className="h-[300px] rounded-hero bg-surface" aria-busy="true" />
