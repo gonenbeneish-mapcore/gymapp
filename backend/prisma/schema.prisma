@@ -1,0 +1,158 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum DemoMediaType {
+  video
+  gif
+  lottie
+}
+
+model Device {
+  id        String   @id @default(uuid())
+  createdAt DateTime @default(now())
+
+  exercises             Exercise[]
+  workoutTemplates      WorkoutTemplate[]
+  workoutSessions       WorkoutSession[]
+  exerciseMediaAssets   ExerciseMediaAsset[]
+}
+
+model Exercise {
+  id        String   @id @default(uuid())
+  deviceId  String
+  name      String
+  equipment String?
+  tags      String?
+  notes     String?
+  archived  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  demoMediaType    DemoMediaType?
+  demoMediaUrl     String?
+  demoMediaAssetId String?
+
+  device     Device             @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+  mediaAsset ExerciseMediaAsset? @relation("ExerciseDemoMedia", fields: [demoMediaAssetId], references: [id], onDelete: SetNull)
+
+  templateExercises WorkoutTemplateExercise[]
+  sessionExercises  WorkoutSessionExercise[]
+
+  @@index([deviceId])
+  @@index([deviceId, name])
+}
+
+model ExerciseMediaAsset {
+  id          String   @id @default(uuid())
+  deviceId    String
+  contentType String
+  byteSize    Int
+  sha256      String
+  storageKey  String
+  createdAt   DateTime @default(now())
+
+  device    Device     @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+  exercises Exercise[] @relation("ExerciseDemoMedia")
+
+  @@unique([deviceId, sha256])
+  @@index([deviceId])
+}
+
+model WorkoutTemplate {
+  id        String   @id @default(uuid())
+  deviceId  String
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  device    Device                  @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+  exercises WorkoutTemplateExercise[]
+  sessions  WorkoutSession[]
+
+  @@index([deviceId])
+}
+
+model WorkoutTemplateExercise {
+  id         String @id @default(uuid())
+  templateId String
+  exerciseId String
+  sortOrder  Int
+
+  template WorkoutTemplate    @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  exercise Exercise           @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+  setPlans TemplateSetPlan[]
+
+  @@unique([templateId, sortOrder])
+  @@index([templateId])
+  @@index([exerciseId])
+}
+
+model TemplateSetPlan {
+  id                 String @id @default(uuid())
+  templateExerciseId String
+  setIndex           Int
+  targetReps         Int?
+  targetWeight       Float?
+
+  templateExercise WorkoutTemplateExercise @relation(fields: [templateExerciseId], references: [id], onDelete: Cascade)
+
+  @@unique([templateExerciseId, setIndex])
+  @@index([templateExerciseId])
+}
+
+model WorkoutSession {
+  id         String   @id @default(uuid())
+  deviceId   String
+  templateId String?
+  startedAt  DateTime @default(now())
+  endedAt    DateTime?
+  notes      String?
+
+  device   Device           @relation(fields: [deviceId], references: [id], onDelete: Cascade)
+  template WorkoutTemplate? @relation(fields: [templateId], references: [id], onDelete: SetNull)
+  exercises WorkoutSessionExercise[]
+
+  @@index([deviceId, startedAt])
+  @@index([templateId])
+}
+
+model WorkoutSessionExercise {
+  id         String @id @default(uuid())
+  sessionId  String
+  exerciseId String
+  sortOrder  Int
+
+  session  WorkoutSession    @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  exercise Exercise          @relation(fields: [exerciseId], references: [id], onDelete: Cascade)
+  sets     WorkoutSessionSet[]
+
+  @@unique([sessionId, sortOrder])
+  @@index([sessionId])
+  @@index([exerciseId])
+}
+
+model WorkoutSessionSet {
+  id                String @id @default(uuid())
+  sessionExerciseId String
+  setIndex          Int
+  plannedReps       Int?
+  plannedWeight     Float?
+  actualReps        Int?
+  actualWeight      Float?
+
+  sessionExercise WorkoutSessionExercise @relation(fields: [sessionExerciseId], references: [id], onDelete: Cascade)
+
+  @@unique([sessionExerciseId, setIndex])
+  @@index([sessionExerciseId])
+}

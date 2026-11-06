@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>GymApp – Static Prototype</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="app" data-theme="dark">
+      <header class="topbar">
+        <div class="topbar__left">
+          <div class="appmark">GymApp</div>
+          <div class="subtitle" id="screenTitle">Exercise Bank</div>
+        </div>
+        <div class="topbar__right">
+          <button class="iconBtn" type="button" aria-label="Search" title="Search">
+            <span aria-hidden="true">⌕</span>
+          </button>
+          <button class="iconBtn" type="button" aria-label="More" title="More">
+            <span aria-hidden="true">⋯</span>
+          </button>
+        </div>
+      </header>
+
+      <main class="content">
+        <!-- Screen: Exercise Bank -->
+        <section class="screen screen--active" id="screen-bank" data-title="Exercise Bank">
+          <div class="card">
+            <label class="label" for="bankSearch">Search exercises</label>
+            <input id="bankSearch" class="input" type="search" placeholder="e.g. Chest Press, Lat Pulldown" />
+            <div class="chips" role="tablist" aria-label="Filters">
+              <button class="chip chip--active" type="button">All</button>
+              <button class="chip" type="button">Machines</button>
+              <button class="chip" type="button">Free Weights</button>
+              <button class="chip" type="button">Bench</button>
+              <button class="chip" type="button">Cardio</button>
+            </div>
+          </div>
+
+          <div class="list">
+            <article class="row">
+              <div class="row__main">
+                <div class="row__title">Chest Press</div>
+                <div class="row__meta">Machine · Chest</div>
+                <div class="row__sub">Demo: uploaded video · cached for offline</div>
+              </div>
+              <div class="thumb" aria-label="Animation thumbnail">
+                <div class="thumb__play" aria-hidden="true">▶</div>
+              </div>
+            </article>
+
+            <article class="row">
+              <div class="row__main">
+                <div class="row__title">Incline Dumbbell Press</div>
+                <div class="row__meta">Free weights · Chest/Shoulders</div>
+                <div class="row__sub">Demo: external link</div>
+              </div>
+              <div class="thumb">
+                <div class="thumb__play" aria-hidden="true">▶</div>
+              </div>
+            </article>
+
+            <article class="row">
+              <div class="row__main">
+                <div class="row__title">Lat Pulldown</div>
+                <div class="row__meta">Machine · Back</div>
+                <div class="row__sub">Demo: Lottie</div>
+              </div>
+              <div class="thumb">
+                <div class="thumb__play" aria-hidden="true">▶</div>
+              </div>
+            </article>
+          </div>
+
+          <button class="fab" type="button" aria-label="Add exercise" title="Add exercise">
+            +
+          </button>
+        </section>
+
+        <!-- Screen: Workout Builder -->
+        <section class="screen" id="screen-workouts" data-title="Workouts">
+          <div class="card">
+            <div class="card__header">
+              <div>
+                <div class="h1">Push Day</div>
+                <div class="muted">Template · 3 exercises</div>
+              </div>
+              <button class="btn" type="button">Add exercise</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card__header">
+              <div class="h2">Chest Press (Machine)</div>
+              <button class="ghostBtn" type="button">Edit</button>
+            </div>
+            <div class="grid">
+              <div class="pill">3 sets</div>
+              <div class="pill">Target: 10 reps</div>
+              <div class="pill">Weight: 45 kg</div>
+            </div>
+            <div class="setsPlan">
+              <div class="setsPlan__row setsPlan__head">
+                <div>Set</div><div>Reps</div><div>Weight</div>
+              </div>
+              <div class="setsPlan__row"><div>1</div><div>10</div><div>45</div></div>
+              <div class="setsPlan__row"><div>2</div><div>10</div><div>45</div></div>
+              <div class="setsPlan__row"><div>3</div><div>10</div><div>45</div></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card__header">
+              <div class="h2">Incline Dumbbell Press</div>
+              <button class="ghostBtn" type="button">Edit</button>
+            </div>
+            <div class="grid">
+              <div class="pill">3 sets</div>
+              <div class="pill">Target: 8 reps</div>
+              <div class="pill">Weight: 20 kg</div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card__header">
+              <div class="h2">Triceps Pushdown</div>
+              <button class="ghostBtn" type="button">Edit</button>
+            </div>
+            <div class="grid">
+              <div class="pill">3 sets</div>
+              <div class="pill">Target: 12 reps</div>
+              <div class="pill">Weight: 25 kg</div>
+            </div>
+          </div>
+
+          <div class="stickyActions">
+            <button class="btn btn--primary" type="button" data-nav="session">Start session</button>
+          </div>
+        </section>
+
+        <!-- Screen: Session -->
+        <section class="screen" id="screen-session" data-title="Session">
+          <div class="card card--accent">
+            <div class="card__header">
+              <div>
+                <div class="h1">Push Day</div>
+                <div class="muted">In progress · auto-saves</div>
+              </div>
+              <div class="chipLike" id="timerBadge">Rest: 01:30</div>
+            </div>
+
+            <div class="timer">
+              <div class="timer__display" id="timerDisplay">01:30</div>
+              <div class="timer__controls">
+                <button class="btn btn--primary" type="button" id="timerStart">Start</button>
+                <button class="btn" type="button" id="timerPause">Pause</button>
+                <button class="btn" type="button" id="timerReset">Reset</button>
+                <button class="btn" type="button" id="timerDemoDone" title="For demo: jump to done">Demo done</button>
+              </div>
+              <div class="hint">When the rest is done, the timer blinks (no sound).</div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card__header">
+              <div class="h2">Chest Press (Machine)</div>
+              <button class="ghostBtn" type="button">View demo</button>
+            </div>
+            <div class="muted">Planned: 3×10 @ 45 kg</div>
+
+            <div class="setGrid">
+              <div class="setGrid__head">
+                <div>Set</div>
+                <div>Weight</div>
+                <div>Reps</div>
+              </div>
+
+              <!-- Ghost reps: placeholder shows last time (gray). -->
+              <div class="setGrid__row">
+                <div class="setNum">1</div>
+                <input class="input input--compact" inputmode="decimal" value="45" aria-label="Set 1 weight" />
+                <div class="ghostWrap">
+                  <input class="input input--compact" inputmode="numeric" placeholder="9" aria-label="Set 1 reps (last time 9)" />
+                  <div class="ghostLabel">last: 9</div>
+                </div>
+              </div>
+              <div class="setGrid__row">
+                <div class="setNum">2</div>
+                <input class="input input--compact" inputmode="decimal" value="45" aria-label="Set 2 weight" />
+                <div class="ghostWrap">
+                  <input class="input input--compact" inputmode="numeric" placeholder="10" aria-label="Set 2 reps (last time 10)" />
+                  <div class="ghostLabel">last: 10</div>
+                </div>
+              </div>
+              <div class="setGrid__row">
+                <div class="setNum">3</div>
+                <input class="input input--compact" inputmode="decimal" value="45" aria-label="Set 3 weight" />
+                <div class="ghostWrap">
+                  <input class="input input--compact" inputmode="numeric" placeholder="8" aria-label="Set 3 reps (last time 8)" />
+                  <div class="ghostLabel">last: 8</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="rowActions">
+              <button class="btn" type="button">Start rest</button>
+              <button class="btn" type="button">Mark exercise done</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card__header">
+              <div class="h2">Incline Dumbbell Press</div>
+              <button class="ghostBtn" type="button">View demo</button>
+            </div>
+            <div class="muted">Planned: 3×8 @ 20 kg</div>
+            <div class="note">Inputs follow the same “ghost reps” pattern.</div>
+          </div>
+
+          <div class="stickyActions">
+            <button class="btn btn--primary" type="button">Finish session</button>
+          </div>
+        </section>
+
+        <!-- Screen: History -->
+        <section class="screen" id="screen-history" data-title="History">
+          <div class="card">
+            <div class="h1">History</div>
+            <div class="muted">Your sessions (stored with date + sets/reps/weight)</div>
+          </div>
+
+          <div class="list">
+            <article class="row row--clickable">
+              <div class="row__main">
+                <div class="row__title">Push Day</div>
+                <div class="row__meta">Fri · Apr 24 · 54 min</div>
+                <div class="row__sub">Total volume: 7,820 kg</div>
+              </div>
+              <div class="chev" aria-hidden="true">›</div>
+            </article>
+            <article class="row row--clickable">
+              <div class="row__main">
+                <div class="row__title">Pull Day</div>
+                <div class="row__meta">Wed · Apr 22 · 48 min</div>
+                <div class="row__sub">PR: Lat Pulldown 60 kg × 8</div>
+              </div>
+              <div class="chev" aria-hidden="true">›</div>
+            </article>
+          </div>
+
+          <div class="card">
+            <div class="h2">Graphs (later)</div>
+            <div class="muted">Volume over time · Reps PRs · Estimated 1RM</div>
+            <div class="chartSkeleton" aria-hidden="true">
+              <div class="bar" style="height: 50%"></div>
+              <div class="bar" style="height: 70%"></div>
+              <div class="bar" style="height: 40%"></div>
+              <div class="bar" style="height: 85%"></div>
+              <div class="bar" style="height: 60%"></div>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <nav class="bottomNav" aria-label="Bottom navigation">
+        <button class="navItem navItem--active" type="button" data-nav="bank">
+          <div class="navItem__icon" aria-hidden="true">🏋</div>
+          <div class="navItem__label">Bank</div>
+        </button>
+        <button class="navItem" type="button" data-nav="workouts">
+          <div class="navItem__icon" aria-hidden="true">🧱</div>
+          <div class="navItem__label">Workouts</div>
+        </button>
+        <button class="navItem" type="button" data-nav="session">
+          <div class="navItem__icon" aria-hidden="true">⏱</div>
+          <div class="navItem__label">Session</div>
+        </button>
+        <button class="navItem" type="button" data-nav="history">
+          <div class="navItem__icon" aria-hidden="true">📈</div>
+          <div class="navItem__label">History</div>
+        </button>
+      </nav>
+    </div>
+
+    <script src="./app.js"></script>
+  </body>
+</html>
