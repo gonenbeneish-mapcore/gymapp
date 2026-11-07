@@ -35,3 +35,12 @@ export function useLastBackupAt(): number | null | undefined {
 export function useSession(id: string | undefined): Session | null | undefined {
   return useLiveQuery(async () => (id ? ((await db.sessions.get(id)) ?? null) : null), [id]);
 }
+
+/** `null` = no such exercise; `undefined` = still loading. */
+export function useExercise(id: string | undefined): Exercise | null | undefined {
+  return useLiveQuery(async () => (id ? ((await db.exercises.get(id)) ?? null) : null), [id]);
+}
+
+export function useExerciseNote(id: string | undefined): ExerciseNote | null | undefined {
+  return useLiveQuery(async () => (id ? ((await db.exerciseNotes.get(id)) ?? null) : null), [id]);
+}
