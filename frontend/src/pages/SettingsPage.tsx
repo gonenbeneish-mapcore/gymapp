@@ -14,6 +14,7 @@ import {
   type AccentId,
   type ThemePref,
 } from "../lib/appearance";
+import { BackupSection } from "./BackupSection";
 
 export function SettingsPage() {
   const [theme, setTheme] = useState<ThemePref>(getTheme);
@@ -28,6 +29,8 @@ export function SettingsPage() {
         </Link>
         <h1 className="font-display text-[34px] font-bold leading-[1.05] tracking-[-0.03em]">Settings</h1>
       </header>
+
+      <BackupSection />
 
       <Section title="Look">
         <div className="flex flex-col gap-4 rounded-panel bg-surface p-4">
@@ -79,7 +82,6 @@ export function SettingsPage() {
         <GroupedList>
           <ListRow title="Height and goal weight" subtitle="Used by the Measure tab" />
           <ListRow title="Default rest and screen-on" subtitle="Workout options" />
-          <ListRow title="Backup to a file" subtitle="Files / iCloud Drive" />
         </GroupedList>
       </Section>
 

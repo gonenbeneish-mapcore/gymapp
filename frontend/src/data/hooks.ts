@@ -24,6 +24,14 @@ export function useCompletedSessions(): Session[] | undefined {
   return useLiveQuery(() => completedSessions(), []);
 }
 
+/** `null` = never backed up; `undefined` = still loading. */
+export function useLastBackupAt(): number | null | undefined {
+  return useLiveQuery(async () => {
+    const v = (await db.meta.get("lastBackupAt"))?.value;
+    return typeof v === "number" ? v : null;
+  }, []);
+}
+
 export function useSession(id: string | undefined): Session | null | undefined {
   return useLiveQuery(async () => (id ? ((await db.sessions.get(id)) ?? null) : null), [id]);
 }
