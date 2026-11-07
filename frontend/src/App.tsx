@@ -2,6 +2,7 @@ import { Navigate, Outlet, Route, Routes } from "react-router-dom";
 import { TabBar } from "./ui/TabBar";
 import { TrainPage } from "./pages/TrainPage";
 import { ExercisesPage } from "./pages/ExercisesPage";
+import { ExerciseDetailPage } from "./pages/ExerciseDetailPage";
 import { MeasurePage } from "./pages/MeasurePage";
 import { HistoryPage } from "./pages/HistoryPage";
 import { SettingsPage } from "./pages/SettingsPage";
@@ -27,6 +28,7 @@ export default function App() {
         <Route path="/measure" element={<MeasurePage />} />
         <Route path="/history" element={<HistoryPage />} />
       </Route>
+      <Route path="/exercises/:id" element={<ExerciseDetailPage />} />
       <Route path="/session" element={<SessionPage />} />
       <Route path="/session/:id/done" element={<SummaryPage />} />
       <Route path="/settings" element={<SettingsPage />} />

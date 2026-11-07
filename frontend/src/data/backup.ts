@@ -19,7 +19,7 @@ export type Backup = {
 };
 
 const setType = z.enum(["normal", "warmup", "drop", "failure"]);
-const muscle = z.enum(["chest", "back", "shoulders", "biceps", "triceps", "quads", "hamstrings", "glutes", "calves", "core"]);
+const muscle = z.enum(["chest", "back", "shoulders", "biceps", "triceps", "quads", "hamstrings", "glutes", "calves", "adductors", "core"]);
 
 const workoutSchema = z.object({
   id: z.string(),

@@ -9,6 +9,7 @@ export type Muscle =
   | "hamstrings"
   | "glutes"
   | "calves"
+  | "adductors"
   | "core";
 
 /** Built-in catalog entry. User-specific notes live in `ExerciseNote`. */
