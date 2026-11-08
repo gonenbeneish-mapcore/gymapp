@@ -125,7 +125,7 @@ function ActiveSession({
           const isCur = i === cur;
           return (
             <button
-              key={i}
+              key={x.key}
               ref={(el) => {
                 chipRefs.current[i] = el;
               }}

@@ -6,6 +6,7 @@ import {
   compareWith,
   createSessionFromWorkout,
   findRecords,
+  withEntryKeys,
   nextOpenExercise,
   nextSetType,
   nextWorkout,
@@ -36,6 +37,7 @@ function done(id: string, workoutId: string, at: number, chest: [number, number]
     currentIndex: 0,
     exercises: [
       {
+        key: `${id}:0`,
         exerciseId: "chest-press",
         restSeconds: 90,
         sets: chest.map(([kg, reps]) => ({ kg, reps, type: "normal", done: true })),
@@ -59,6 +61,31 @@ describe("createSessionFromWorkout", () => {
     expect(s.exercises[0].sets[1]).toMatchObject({ kg: 47.5, reps: 8 });
     // exercise never done before → plan values
     expect(s.exercises[1].sets[0]).toMatchObject({ kg: 35, reps: 12, prevKg: undefined });
+  });
+
+  it("keeps the plan's numbers as each set's target, even when pre-filled from last time", () => {
+    const history = [done("old", "w1", 50, [[47.5, 9]])];
+    const s = createSessionFromWorkout(plan("w1", "Push", 0), history, "s1", 100);
+    expect(s.exercises[0].sets[0]).toMatchObject({ kg: 47.5, targetKg: 45, targetReps: 10 });
+    expect(s.exercises[1].sets[0]).toMatchObject({ targetKg: 35, targetReps: 12 });
+  });
+
+  it("gives every exercise a unique key", () => {
+    const s = createSessionFromWorkout(plan("w1", "Push", 0), [], "s1", 100);
+    expect(s.exercises.map((e) => e.key)).toEqual(["s1:0", "s1:1"]);
+  });
+});
+
+describe("withEntryKeys", () => {
+  it("adds keys to old sessions and keeps existing ones", () => {
+    const old = { id: "s9", exercises: [{ exerciseId: "a" }, { key: "keep", exerciseId: "b" }] };
+    expect(withEntryKeys(old).exercises.map((e) => e.key)).toEqual(["s9:0", "keep"]);
+  });
+
+  it("never leaves two exercises with the same key", () => {
+    const clash = { id: "s9", exercises: [{ key: "s9:1" }, {}, { key: "s9:1" }] };
+    const keys = withEntryKeys(clash).exercises.map((e) => e.key);
+    expect(new Set(keys).size).toBe(3);
   });
 });
 
@@ -88,6 +115,12 @@ describe("toggleSet and rest", () => {
     const a = toggleSet(base, 0, 0, 0); // ends at 90s
     expect(adjustRest(a, -15000, 0).restEndsAt).toBe(75000);
     expect(adjustRest(a, -200000, 10000).restEndsAt).toBe(10000);
+  });
+
+  it("adjustRest adds time from now once the rest has run out", () => {
+    const a = toggleSet(base, 0, 0, 0); // ends at 90s
+    expect(adjustRest(a, 15000, 100000).restEndsAt).toBe(115000);
+    expect(adjustRest(a, 15000, 80000).restEndsAt).toBe(105000);
   });
 });
 

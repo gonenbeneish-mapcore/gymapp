@@ -16,7 +16,7 @@ const session = (startedAt: number, exerciseId: string, sets: SessionSet[]): Ses
   startedAt,
   endedAt: startedAt + 1,
   currentIndex: 0,
-  exercises: [{ exerciseId, restSeconds: 90, sets }],
+  exercises: [{ key: `${startedAt}:0`, exerciseId, restSeconds: 90, sets }],
 });
 
 describe("exerciseHistory", () => {

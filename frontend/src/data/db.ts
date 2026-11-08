@@ -1,5 +1,6 @@
 import Dexie, { type EntityTable } from "dexie";
 import type { Exercise, ExerciseNote, Session, Workout } from "./types";
+import { withEntryKeys } from "../domain/session";
 
 export class GymDB extends Dexie {
   exercises!: EntityTable<Exercise, "id">;
@@ -17,6 +18,15 @@ export class GymDB extends Dexie {
       sessions: "id, startedAt, endedAt, workoutId",
       meta: "key",
     });
+    // v2: each session exercise gets a stable key.
+    this.version(2).upgrade((tx) =>
+      tx
+        .table("sessions")
+        .toCollection()
+        .modify((s: Session) => {
+          s.exercises = withEntryKeys(s).exercises;
+        }),
+    );
   }
 }
 
