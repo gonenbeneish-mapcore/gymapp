@@ -26,6 +26,13 @@
   --tab-cutout: #0b0c0e;
   --scrim: rgba(0, 0, 0, 0.55);
   --shadow-float: 0 20px 50px rgba(0, 0, 0, 0.6);
+  /* Body drawing on exercise pages */
+  --body: #30343b;
+  --body-muscle: #3b4048;
+  --body-head: #30343b;
+  --body-line: #262a30;
+  --body-outline: #5b616b;
+  --muscle-hit: var(--accent);
 }
 
 @media (prefers-color-scheme: light) {
@@ -49,6 +56,12 @@
     --tab-cutout: #c8f04a;
     --scrim: rgba(0, 0, 0, 0.35);
     --shadow-float: 0 16px 40px rgba(0, 0, 0, 0.18);
+    --body: #e4e5e7;
+    --body-muscle: #d3d5d8;
+    --body-head: #c9cbce;
+    --body-line: #f4f4f5;
+    --body-outline: #55595f;
+    --muscle-hit: color-mix(in srgb, var(--accent) 80%, #000);
   }
 }
 
@@ -72,4 +85,10 @@
   --tab-cutout: #c8f04a;
   --scrim: rgba(0, 0, 0, 0.35);
   --shadow-float: 0 16px 40px rgba(0, 0, 0, 0.18);
+  --body: #e4e5e7;
+  --body-muscle: #d3d5d8;
+  --body-head: #c9cbce;
+  --body-line: #f4f4f5;
+  --body-outline: #55595f;
+  --muscle-hit: color-mix(in srgb, var(--accent) 80%, #000);
 }

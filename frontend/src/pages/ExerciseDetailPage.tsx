@@ -52,14 +52,14 @@ function Detail({ exercise: e }: { exercise: Exercise }) {
           <img src={e.image} alt={`${e.name} machine`} className="h-[300px] w-full object-cover" />
         ) : (
           <div className="flex flex-col items-center gap-3 px-5 pb-4 pt-14">
-            <MuscleMap primary={e.primary} secondary={e.secondary} className="h-[230px] w-auto" />
+            <MuscleMap primary={e.primary} secondary={e.secondary} className="h-[270px] w-auto" />
             <div className="flex items-center gap-4 text-xs font-semibold text-ink-2" aria-hidden="true">
               <span className="flex items-center gap-1.5">
-                <span className="h-2.5 w-2.5 rounded-full bg-accent" />
+                <span className="h-2.5 w-2.5 rounded-full bg-[var(--muscle-hit)]" />
                 Main
               </span>
               <span className="flex items-center gap-1.5">
-                <span className="h-2.5 w-2.5 rounded-full bg-accent opacity-40" />
+                <span className="h-2.5 w-2.5 rounded-full bg-[var(--muscle-hit)] opacity-40" />
                 Also works
               </span>
             </div>
