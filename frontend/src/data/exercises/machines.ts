@@ -40,13 +40,13 @@ export const MACHINES: CatalogEntry[] = [
     name: "Decline Chest Press",
     equipment: "machine",
     primary: ["chest"],
-    secondary: ["triceps"],
+    secondary: ["triceps", "shoulders"],
     description: "A press on a downward angle that focuses on the lower chest and lets you move heavy weight.",
     steps: [
       "Set the seat so the handles line up with the bottom of your chest.",
-      "Sit tall with shoulder blades back and down.",
+      "Sit tall with your back and head on the pad, shoulder blades back and down.",
       "Press down and forward until the arms are nearly straight.",
-      "Return under control.",
+      "Return under control until you feel a stretch across the chest.",
     ],
     mistakes: ["Shrugging the shoulders up during the press.", "Bouncing out of the bottom."],
     alternatives: ["chest-press", "dip", "cable-crossover"],
@@ -90,8 +90,8 @@ export const MACHINES: CatalogEntry[] = [
     description:
       "Sitting facing the pad, you sweep the arms back and out. Works the back of the shoulders, which helps posture. Often the same machine as the pec fly.",
     steps: [
-      "Sit facing the pad with the handles set to the rear-delt position.",
-      "Hold the handles at shoulder height, arms nearly straight.",
+      "Set the handles to the rear-delt position and the seat so they sit at shoulder height.",
+      "Sit facing the pad with your chest against it and hold the handles, arms nearly straight.",
       "Sweep the arms back until they are in line with your body.",
       "Return slowly without letting the stack rest.",
     ],
@@ -123,10 +123,15 @@ export const MACHINES: CatalogEntry[] = [
     description: "Pulls a bar down to the chest while seated. Builds the width of the back.",
     steps: [
       "Set the thigh pad so your legs are locked in.",
-      "Grip the bar a little wider than shoulders and lean back slightly.",
-      "Pull the bar to the top of the chest, then let it rise slowly.",
+      "Grip the bar a little wider than shoulders, chest up, and lean back slightly.",
+      "Drive the elbows down and pull the bar to the top of the chest.",
+      "Let it rise slowly until the arms are straight.",
     ],
-    mistakes: ["Pulling the bar behind the neck.", "Swinging the body back to move the weight."],
+    mistakes: [
+      "Pulling the bar behind the neck.",
+      "Swinging the body back to move the weight.",
+      "Shrugging the shoulders up toward the ears.",
+    ],
     alternatives: ["assisted-pull-up", "pull-up", "seated-row"],
   },
   {
@@ -138,10 +143,10 @@ export const MACHINES: CatalogEntry[] = [
     description: "Pulls handles toward the body while seated with chest support.",
     steps: [
       "Set the chest pad so you can just reach the handles with straight arms.",
-      "Pull the handles back, squeezing the shoulder blades together.",
+      "Keep your chest on the pad and pull the handles back, squeezing the shoulder blades together.",
       "Return slowly until the arms are straight.",
     ],
-    mistakes: ["Shrugging instead of pulling back.", "Jerking the weight with the lower back."],
+    mistakes: ["Shrugging instead of pulling back.", "Leaning off the pad and jerking the weight with the lower back."],
     alternatives: ["cable-row", "high-row", "db-row"],
   },
   {
@@ -207,7 +212,7 @@ export const MACHINES: CatalogEntry[] = [
       "Curl the handles up toward your shoulders.",
       "Lower until the arms are almost straight.",
     ],
-    mistakes: ["Seat too low, so the elbows lift off the pad.", "Cutting the bottom of the rep short."],
+    mistakes: ["Elbows lifting off the pad or shoulders rolling forward to finish the rep.", "Cutting the bottom of the rep short."],
     alternatives: ["biceps-curl", "cable-curl", "barbell-curl"],
   },
   {
@@ -253,7 +258,11 @@ export const MACHINES: CatalogEntry[] = [
       "Breathe out and curl your chest toward your hips.",
       "Pause, then return slowly.",
     ],
-    mistakes: ["Pulling with the arms instead of curling the spine.", "Going too heavy and moving fast."],
+    mistakes: [
+      "Pulling with the arms instead of curling the spine.",
+      "Folding at the hips with a flat back, so the hip flexors do the work.",
+      "Going too heavy and moving fast.",
+    ],
     alternatives: ["cable-crunch", "crunch", "hanging-knee-raise"],
   },
   {
@@ -266,10 +275,10 @@ export const MACHINES: CatalogEntry[] = [
     steps: [
       "Set the seat so the pad sits across your upper back.",
       "Fasten the thigh strap if there is one.",
-      "Push back until your body is straight.",
+      "Push back until your body is straight, and no further.",
       "Return slowly, keeping the movement smooth.",
     ],
-    mistakes: ["Throwing the head back.", "Going too heavy for the lower back."],
+    mistakes: ["Leaning back past straight, which overarches the lower back.", "Throwing the head back.", "Going too heavy for the lower back."],
     alternatives: ["back-extension", "romanian-deadlift"],
   },
   {
@@ -296,7 +305,8 @@ export const MACHINES: CatalogEntry[] = [
     description: "Pushes a sled away with the legs while seated. Heavy leg work without a bar on your back.",
     steps: [
       "Feet shoulder-width on the platform, back flat on the pad.",
-      "Lower until the knees are at about 90 degrees.",
+      "Release the safety catches if the sled has them.",
+      "Lower slowly until the knees are at about 90 degrees, keeping them in line with your toes.",
       "Press back up without locking the knees.",
     ],
     mistakes: ["Lower back lifting off the pad at the bottom.", "Knees caving inward."],
@@ -310,8 +320,8 @@ export const MACHINES: CatalogEntry[] = [
     secondary: [],
     description: "Straightens the knees against a pad to isolate the front of the thighs.",
     steps: [
-      "Line the knee joint up with the machine's pivot.",
-      "Set the pad just above the ankles.",
+      "Sit back against the pad and line the knee joint up with the machine's pivot.",
+      "Set the pad just above the ankles and hold the side handles.",
       "Straighten the legs, pause, then lower slowly.",
     ],
     mistakes: ["Kicking the weight up with momentum.", "Lifting the hips off the seat."],
@@ -325,7 +335,8 @@ export const MACHINES: CatalogEntry[] = [
     secondary: [],
     description: "Bends the knees against a pad to work the back of the thighs.",
     steps: [
-      "Line the knees up with the pivot and lock the thigh pad down.",
+      "Sit back against the pad and line the knees up with the pivot.",
+      "Rest your lower legs on the pad just above the heels, then lock the thigh pad down snugly.",
       "Curl the lower pad under the seat.",
       "Let it come back up slowly.",
     ],
@@ -371,7 +382,7 @@ export const MACHINES: CatalogEntry[] = [
     secondary: [],
     description: "Pushes the knees apart against pads. Works the outer glutes that keep the hips and knees stable.",
     steps: [
-      "Sit with the pads on the outside of your knees.",
+      "Sit with your back on the pad and the pads on the outside of your knees.",
       "Push the legs apart as far as is comfortable.",
       "Pause, then bring them back slowly.",
     ],
@@ -387,7 +398,7 @@ export const MACHINES: CatalogEntry[] = [
     description: "Pushes one leg back against a pad or platform. Isolates the glutes one side at a time.",
     steps: [
       "Set up with your chest on the pad and one foot on the platform.",
-      "Push the leg back and up by squeezing the glute.",
+      "Push the leg back and up through your heel, squeezing the glute.",
       "Return slowly. Do all reps on one side, then switch.",
     ],
     mistakes: ["Arching the lower back to push further.", "Swinging the leg."],
@@ -401,11 +412,12 @@ export const MACHINES: CatalogEntry[] = [
     secondary: [],
     description: "Rises up onto the toes against resistance.",
     steps: [
-      "Balls of the feet on the edge of the platform, heels hanging.",
-      "Rise as high as you can onto the toes.",
-      "Lower until you feel a stretch in the calves.",
+      "Stand under the shoulder pads with the balls of your feet on the edge, heels hanging.",
+      "Keep the knees straight but not locked.",
+      "Rise as high as you can onto the toes and pause.",
+      "Lower slowly until you feel a stretch in the calves.",
     ],
-    mistakes: ["Bouncing at the bottom.", "Using only a small range of motion."],
+    mistakes: ["Bouncing at the bottom.", "Using only a small range of motion.", "Bending the knees to help push the weight up."],
     alternatives: ["seated-calf-raise"],
   },
   {
@@ -436,7 +448,7 @@ export const MACHINES: CatalogEntry[] = [
       "Bend the knees and lower until the thighs are about parallel to the platform.",
       "Push back up through the whole foot.",
     ],
-    mistakes: ["Heels lifting off the platform.", "Knees caving inward on the way up."],
+    mistakes: ["Heels lifting off the platform.", "Knees caving inward on the way up.", "Lower back peeling off the pad at the bottom."],
     alternatives: ["leg-press", "back-squat", "smith-machine-squat"],
   },
   {

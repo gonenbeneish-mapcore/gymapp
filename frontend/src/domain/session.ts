@@ -28,10 +28,11 @@ export function createSessionFromWorkout(
   id: string,
   now: number,
 ): Session {
-  const exercises: SessionExercise[] = workout.exercises.map((we) => {
+  const exercises: SessionExercise[] = workout.exercises.map((we, index) => {
     const prev = lastPerformance(we.exerciseId, completedNewestFirst);
     const prevDone = prev?.sets.filter((s) => s.done) ?? [];
     return {
+      key: entryKey(id, index),
       exerciseId: we.exerciseId,
       restSeconds: we.restSeconds ?? workout.restSeconds ?? DEFAULT_REST_SECONDS,
       sets: we.sets.map((planned, i) => {
@@ -43,6 +44,8 @@ export function createSessionFromWorkout(
           done: false,
           prevKg: p?.kg,
           prevReps: p?.reps,
+          targetKg: planned.kg,
+          targetReps: planned.reps,
         };
       }),
     };
@@ -56,6 +59,25 @@ export function createSessionFromWorkout(
     restEndsAt: null,
     exercises,
   };
+}
+
+/** Key for the exercise at `index` when a session is first built. */
+export function entryKey(sessionId: string, index: number): string {
+  return `${sessionId}:${index}`;
+}
+
+/** Give exercises saved before keys existed (old sessions, old backups) a key. */
+export function withEntryKeys<T extends { id: string; exercises: Array<{ key?: string }> }>(
+  s: T,
+): T & { exercises: Array<{ key: string }> } {
+  const seen = new Set<string>();
+  const exercises = s.exercises.map((ex, i) => {
+    let key = ex.key && !seen.has(ex.key) ? ex.key : entryKey(s.id, i);
+    while (seen.has(key)) key = `${key}'`;
+    seen.add(key);
+    return { ...ex, key };
+  });
+  return { ...s, exercises } as T & { exercises: Array<{ key: string }> };
 }
 
 /* ---------- edits (all return a new session) ---------- */
@@ -129,9 +151,10 @@ export function removeSet(s: Session, exIndex: number, setIndex: number): Sessio
   };
 }
 
+/** Add or remove rest time. Once the rest has run out, added time counts from now. */
 export function adjustRest(s: Session, deltaMs: number, now: number): Session {
   if (s.restEndsAt == null) return s;
-  const end = Math.max(now, s.restEndsAt + deltaMs);
+  const end = Math.max(now, Math.max(s.restEndsAt, now) + deltaMs);
   return { ...s, restEndsAt: end, restTotalMs: Math.max(s.restTotalMs ?? 0, end - now) };
 }
 

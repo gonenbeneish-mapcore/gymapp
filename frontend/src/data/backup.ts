@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { db as defaultDb, type GymDB } from "./db";
 import type { Exercise, ExerciseNote, Session, Workout } from "./types";
+import { withEntryKeys } from "../domain/session";
 
 export const BACKUP_FORMAT = "gymapp-backup";
 export const BACKUP_VERSION = 1;
@@ -49,6 +50,7 @@ const sessionSchema = z.object({
   notes: z.string().optional(),
   exercises: z.array(
     z.object({
+      key: z.string().optional(),
       exerciseId: z.string(),
       restSeconds: z.number(),
       sets: z.array(
@@ -60,6 +62,8 @@ const sessionSchema = z.object({
           doneAt: z.number().optional(),
           prevKg: z.number().optional(),
           prevReps: z.number().optional(),
+          targetKg: z.number().optional(),
+          targetReps: z.number().optional(),
         }),
       ),
     }),
@@ -129,7 +133,12 @@ export function parseBackup(text: string): ParseResult {
   if (!parsed.success) {
     return { ok: false, error: "This backup file is damaged or incomplete, so it can't be restored." };
   }
-  return { ok: true, backup: parsed.data as Backup };
+  // Backups made before session exercises had keys get them here.
+  const backup = parsed.data;
+  return {
+    ok: true,
+    backup: { ...backup, data: { ...backup.data, sessions: backup.data.sessions.map(withEntryKeys) } } as Backup,
+  };
 }
 
 export type BackupSummary = {

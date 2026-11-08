@@ -1,5 +1,6 @@
 import "fake-indexeddb/auto";
 import { describe, expect, it } from "vitest";
+import Dexie from "dexie";
 import { GymDB } from "./db";
 import { ensureSeeded } from "./seed";
 import { CATALOG } from "./catalog";
@@ -19,7 +20,7 @@ const session = (id: string, startedAt: number, ended = true): Session => ({
   startedAt,
   endedAt: ended ? startedAt + 3_000_000 : undefined,
   currentIndex: 0,
-  exercises: [{ exerciseId: "chest-press", restSeconds: 90, sets: [{ kg: 50, reps: 8, type: "normal", done: true }] }],
+  exercises: [{ key: `${id}:0`, exerciseId: "chest-press", restSeconds: 90, sets: [{ kg: 50, reps: 8, type: "normal", done: true }] }],
 });
 
 const custom: Exercise = {
@@ -87,6 +88,37 @@ describe("parseBackup", () => {
       JSON.stringify({ format: "gymapp-backup", version: 1, exportedAt: 1, data: { workouts: [{ id: 1 }], sessions: [], exerciseNotes: [], customExercises: [] } }),
     );
     expect(damaged.ok === false && damaged.error).toMatch(/damaged/);
+  });
+});
+
+function withoutKey<T extends { key?: string }>(e: T): Omit<T, "key"> {
+  const copy: Partial<T> = { ...e };
+  delete copy.key;
+  return copy as Omit<T, "key">;
+}
+
+describe("backups from before session keys", () => {
+  it("gives old sessions' exercises keys when read", () => {
+    const old = { ...session("s1", 1000), exercises: session("s1", 1000).exercises.map((e) => withoutKey(e)) };
+    const text = JSON.stringify({ format: "gymapp-backup", version: 1, exportedAt: 1, data: { workouts: [], sessions: [old], exerciseNotes: [], customExercises: [] } });
+    const parsed = parseBackup(text);
+    expect(parsed.ok && parsed.backup.data.sessions[0].exercises[0].key).toBe("s1:0");
+  });
+});
+
+describe("database upgrade", () => {
+  it("adds keys to sessions saved by the first version", async () => {
+    const name = `upgrade-test-${n++}`;
+    const v1 = new Dexie(name);
+    v1.version(1).stores({ exercises: "id, name, equipment, *primary", exerciseNotes: "exerciseId", workouts: "id, order", sessions: "id, startedAt, endedAt, workoutId", meta: "key" });
+    const noKey = withoutKey(session("s1", 1000).exercises[0]);
+    await v1.table("sessions").add({ ...session("s1", 1000), exercises: [noKey, noKey] });
+    v1.close();
+
+    const db = new GymDB(name);
+    const s = await db.sessions.get("s1");
+    expect(s?.exercises.map((e) => e.key)).toEqual(["s1:0", "s1:1"]);
+    expect(s?.exercises[0].sets[0]).toMatchObject({ kg: 50, reps: 8 });
   });
 });
 

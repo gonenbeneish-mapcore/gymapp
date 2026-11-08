@@ -11,10 +11,10 @@ export const BODYWEIGHT: CatalogEntry[] = [
     description: "A bodyweight press from the floor. Works anywhere, no equipment needed.",
     steps: [
       "Hands a little wider than shoulders, body in one straight line.",
-      "Lower until the chest is just above the floor.",
+      "Lower until the chest is just above the floor, elbows at about 45 degrees.",
       "Push back up without letting the hips sag.",
     ],
-    mistakes: ["Hips sagging or piking up.", "Only going halfway down."],
+    mistakes: ["Hips sagging or piking up.", "Only going halfway down.", "Elbows flaring straight out to the sides."],
     alternatives: ["chest-press", "bench-press", "db-bench-press"],
   },
   {
@@ -27,8 +27,8 @@ export const BODYWEIGHT: CatalogEntry[] = [
     steps: [
       "Grip the bar a little wider than shoulders, palms facing away.",
       "Start from a dead hang with arms straight.",
-      "Pull until your chin is over the bar.",
-      "Lower all the way down.",
+      "Pull the elbows down toward your ribs until your chin is over the bar.",
+      "Lower all the way down under control.",
     ],
     mistakes: ["Kicking or swinging to get up.", "Half reps that never reach straight arms."],
     alternatives: ["assisted-pull-up", "lat-pulldown", "chin-up"],
@@ -58,10 +58,10 @@ export const BODYWEIGHT: CatalogEntry[] = [
     description: "Supporting yourself on parallel bars, you lower and push your body back up.",
     steps: [
       "Grip the bars and lift yourself up with straight arms.",
-      "Lean slightly forward and lower until the upper arms are about parallel to the floor.",
+      "Lean slightly forward and lower slowly until the upper arms are about parallel to the floor.",
       "Push back up to straight arms.",
     ],
-    mistakes: ["Going too deep.", "Shoulders rolling forward and up."],
+    mistakes: ["Dropping deeper than your shoulders can handle.", "Shoulders rolling forward and up.", "Bouncing out of the bottom."],
     alternatives: ["assisted-dip", "seated-dip", "triceps-pushdown"],
   },
   {
@@ -74,7 +74,7 @@ export const BODYWEIGHT: CatalogEntry[] = [
     steps: [
       "Set a bar in a rack or Smith machine at about waist height.",
       "Hang under it with straight arms and a straight body, heels on the floor.",
-      "Pull your chest to the bar.",
+      "Pull your chest to the bar, squeezing the shoulder blades together.",
       "Lower until the arms are straight.",
     ],
     mistakes: ["Hips sagging.", "Pulling with the neck reaching forward."],
@@ -167,7 +167,7 @@ export const BODYWEIGHT: CatalogEntry[] = [
     steps: [
       "Lie on your back, knees bent, feet flat and hip-width.",
       "Drive through the heels to lift the hips.",
-      "Squeeze the glutes at the top, then lower.",
+      "Stop when the body is straight from shoulders to knees, squeeze the glutes, then lower slowly.",
     ],
     mistakes: ["Arching the lower back instead of using the glutes.", "Feet too far from the hips."],
     alternatives: ["hip-thrust", "glute-kickback-machine"],

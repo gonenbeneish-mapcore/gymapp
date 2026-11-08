@@ -65,9 +65,14 @@ export type SessionSet = {
   /** What was done in this set position last time, for the "Previous" column. */
   prevKg?: number;
   prevReps?: number;
+  /** What the workout plan asked for in this set, kept so History can show planned vs done. */
+  targetKg?: number;
+  targetReps?: number;
 };
 
 export type SessionExercise = {
+  /** Stable id within the session, so entries can be swapped or reordered without losing track. */
+  key: string;
   exerciseId: string;
   restSeconds: number;
   sets: SessionSet[];
