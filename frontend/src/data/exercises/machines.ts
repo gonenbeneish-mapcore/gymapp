@@ -18,6 +18,8 @@ export const MACHINES: CatalogEntry[] = [
     ],
     mistakes: ["Seat too low, so the press drifts toward the shoulders.", "Shoulders rolling forward at the end of each rep."],
     alternatives: ["incline-chest-press", "db-bench-press", "push-up"],
+    source: { brand: "Precor", model: "Vitality VSL04" },
+    videoUrl: "https://www.precor.com/VSL04",
   },
   {
     id: "incline-chest-press",
@@ -65,6 +67,8 @@ export const MACHINES: CatalogEntry[] = [
     ],
     mistakes: ["Arching the lower back off the pad.", "Cutting the range short at the bottom."],
     alternatives: ["db-shoulder-press", "overhead-press", "lateral-raise-machine"],
+    source: { brand: "Precor", model: "Vitality VSL18" },
+    videoUrl: "https://www.precor.com/VSL18",
   },
   {
     id: "pec-fly",
@@ -214,6 +218,8 @@ export const MACHINES: CatalogEntry[] = [
     ],
     mistakes: ["Elbows lifting off the pad or shoulders rolling forward to finish the rep.", "Cutting the bottom of the rep short."],
     alternatives: ["biceps-curl", "cable-curl", "barbell-curl"],
+    source: { brand: "Precor", model: "Vitality VSL03" },
+    videoUrl: "https://www.precor.com/VSL03",
   },
   {
     id: "triceps-extension-machine",
@@ -245,6 +251,8 @@ export const MACHINES: CatalogEntry[] = [
     ],
     mistakes: ["Leaning forward so the chest takes over.", "Shoulders rising toward the ears."],
     alternatives: ["assisted-dip", "triceps-pushdown", "dip"],
+    source: { brand: "Precor", model: "Vitality VSL15" },
+    videoUrl: "https://www.precor.com/VSL15",
   },
   {
     id: "ab-crunch-machine",
