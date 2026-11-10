@@ -33,6 +33,16 @@ describe("catalog", () => {
     }
   });
 
+  it("machine specs are sensible and only on machines", () => {
+    for (const e of CATALOG.filter((x) => x.machine)) {
+      expect(e.equipment, e.id).toBe("machine");
+      const m = e.machine!;
+      if (m.stackKg != null) expect(m.stackKg, e.id).toBeGreaterThan(10);
+      if (m.addOnKg != null) expect(m.addOnKg, e.id).toBeLessThan(10);
+      for (const a of m.adjust ?? []) expect(a.length, e.id).toBeGreaterThan(3);
+    }
+  });
+
   it("starter workouts use catalog exercises", () => {
     for (const w of STARTER_WORKOUTS) for (const x of w.exercises) expect(ids.has(x.id), x.id).toBe(true);
   });

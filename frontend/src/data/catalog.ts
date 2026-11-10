@@ -8,7 +8,7 @@ import { BODYWEIGHT } from "./exercises/bodyweight";
  * Built-in exercises. Text is our own; pictures default to a muscle map until
  * the user adds a photo of their gym's machine. Bump CATALOG_VERSION when this changes.
  */
-export const CATALOG_VERSION = 5;
+export const CATALOG_VERSION = 6;
 
 export const CATALOG: CatalogEntry[] = [...MACHINES, ...FREE_WEIGHTS, ...CABLES, ...BODYWEIGHT];
 

@@ -5,7 +5,7 @@ import { ChevronLeftIcon, PlayIcon } from "../ui/icons";
 import { ExerciseThumb } from "../ui/ExerciseThumb";
 import { MuscleMap } from "../ui/MuscleMap";
 import { useCompletedSessions, useExercise, useExerciseMap, useExerciseNote } from "../data/hooks";
-import type { Exercise } from "../data/types";
+import type { Exercise, MachineSpec } from "../data/types";
 import { EQUIPMENT_LABEL, MUSCLE_LABEL } from "../domain/labels";
 import { exerciseMeta } from "../domain/exerciseSearch";
 import { exerciseHistory, type SetRef } from "../domain/exerciseStats";
@@ -74,6 +74,8 @@ function Detail({ exercise: e }: { exercise: Exercise }) {
             </div>
           ) : null}
         </section>
+
+        {e.machine ? <MachineInfo spec={e.machine} /> : null}
 
         {history ? <YourHistory times={history.times} last={history.last} best={history.best} /> : null}
 
@@ -189,6 +191,28 @@ function MuscleLegend() {
         Also works
       </span>
     </div>
+  );
+}
+
+function MachineInfo({ spec }: { spec: MachineSpec }) {
+  const rows: [string, string][] = [];
+  if (spec.stackKg) rows.push(["Weight stack", `Up to ${kg(spec.stackKg)} kg`]);
+  if (spec.addOnKg) rows.push(["Add-on weight", `+${kg(spec.addOnKg)} kg with the lever`]);
+  if (spec.adjust) rows.push(["Adjust", spec.adjust.length ? spec.adjust.join(" · ") : "Nothing to adjust, just sit and go"]);
+  if (!rows.length) return null;
+  return (
+    <section aria-labelledby="machine" className="flex flex-col gap-2.5 rounded-panel bg-surface p-4">
+      <h2 id="machine" className="text-[15px] font-bold">
+        The machine
+      </h2>
+      {rows.map(([label, value]) => (
+        <div key={label} className="flex items-baseline gap-3 text-[15px]">
+          <span className="w-[104px] shrink-0 text-[13px] font-semibold text-ink-3">{label}</span>
+          <span className="text-ink">{value}</span>
+        </div>
+      ))}
+      <p className="text-xs text-ink-3">From the maker's specs for the current model. Older machines can differ.</p>
+    </section>
   );
 }
 
