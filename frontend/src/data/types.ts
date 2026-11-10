@@ -23,7 +23,7 @@ export type Exercise = {
   steps: string[];
   mistakes: string[];
   alternatives: string[];
-  /** Path under /exercises/ or a blob key; absent = equipment placeholder. */
+  /** Photo URL (e.g. the maker's product photo, cached for offline use); absent = muscle chart. */
   image?: string;
   videoUrl?: string;
   source?: { brand: string; model?: string };

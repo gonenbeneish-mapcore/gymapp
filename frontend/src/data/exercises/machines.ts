@@ -18,7 +18,8 @@ export const MACHINES: CatalogEntry[] = [
     ],
     mistakes: ["Seat too low, so the press drifts toward the shoulders.", "Shoulders rolling forward at the end of each rep."],
     alternatives: ["incline-chest-press", "db-bench-press", "push-up"],
-    source: { brand: "Precor", model: "Vitality VSL04" },
+    source: { brand: "Precor", model: "Vitality VSL001BP" },
+    image: "https://images.ctfassets.net/5bv2a78ngtvd/7zGonEmetb6MoOwlIvZbrm/37912e281d41065c32a1702c4e1ab804/20230913_chest_press.png?w=800&fm=webp",
     videoUrl: "https://www.precor.com/VSL04",
   },
   {
@@ -67,7 +68,8 @@ export const MACHINES: CatalogEntry[] = [
     ],
     mistakes: ["Arching the lower back off the pad.", "Cutting the range short at the bottom."],
     alternatives: ["db-shoulder-press", "overhead-press", "lateral-raise-machine"],
-    source: { brand: "Precor", model: "Vitality VSL18" },
+    source: { brand: "Precor", model: "Vitality VSL012BP" },
+    image: "https://images.ctfassets.net/5bv2a78ngtvd/5GPJm2GYCJFUiHw8rasLjm/be3ec8f92dbb358589d5bcd77adf55a3/VSLC012BP_Shoulder_Press.png?w=800&fm=webp",
     videoUrl: "https://www.precor.com/VSL18",
   },
   {
@@ -84,6 +86,9 @@ export const MACHINES: CatalogEntry[] = [
     ],
     mistakes: ["Bending and straightening the elbows, turning it into a press.", "Letting the weight pull the arms too far back."],
     alternatives: ["cable-crossover", "db-fly", "chest-press"],
+    source: { brand: "Precor", model: "Vitality VSL015BP" },
+    image: "https://images.ctfassets.net/5bv2a78ngtvd/7G5VtRhCxA78xcwWdGVR1v/15c7dea242a10342b9683282a7d1a1b7/VSLC015BP_Rear_Delt-Pec_Fly.png?w=800&fm=webp",
+    videoUrl: "https://www.precor.com/VSL13",
   },
   {
     id: "rear-delt-fly",
@@ -101,6 +106,9 @@ export const MACHINES: CatalogEntry[] = [
     ],
     mistakes: ["Squeezing the shoulder blades hard, so the upper back takes over.", "Using too much weight and jerking."],
     alternatives: ["face-pull", "rear-delt-raise"],
+    source: { brand: "Precor", model: "Vitality VSL015BP" },
+    image: "https://images.ctfassets.net/5bv2a78ngtvd/7G5VtRhCxA78xcwWdGVR1v/15c7dea242a10342b9683282a7d1a1b7/VSLC015BP_Rear_Delt-Pec_Fly.png?w=800&fm=webp",
+    videoUrl: "https://www.precor.com/VSL13",
   },
   {
     id: "lateral-raise-machine",
@@ -117,6 +125,7 @@ export const MACHINES: CatalogEntry[] = [
     ],
     mistakes: ["Shrugging the shoulders toward the ears.", "Leaning sideways to finish the rep."],
     alternatives: ["lateral-raise", "cable-lateral-raise"],
+    videoUrl: "https://www.precor.com/VSL08",
   },
   {
     id: "lat-pulldown",
@@ -137,6 +146,9 @@ export const MACHINES: CatalogEntry[] = [
       "Shrugging the shoulders up toward the ears.",
     ],
     alternatives: ["assisted-pull-up", "pull-up", "seated-row"],
+    source: { brand: "Precor", model: "Vitality VSL002BP" },
+    image: "https://images.ctfassets.net/5bv2a78ngtvd/7BcUrOoAUISzGfsGM6yNf8/6d8c968072499c01d614f84b3ef9ff94/VSLC002BP_Pulldown.png?w=800&fm=webp",
+    videoUrl: "https://www.precor.com/VSL07",
   },
   {
     id: "seated-row",
@@ -152,6 +164,9 @@ export const MACHINES: CatalogEntry[] = [
     ],
     mistakes: ["Shrugging instead of pulling back.", "Leaning off the pad and jerking the weight with the lower back."],
     alternatives: ["cable-row", "high-row", "db-row"],
+    source: { brand: "Precor", model: "Vitality VSL019BP" },
+    image: "https://images.ctfassets.net/5bv2a78ngtvd/72JRO48BSeUQ9xd78A7ZEc/530cfc2729ded6d47d8745960163a619/VSLC019BP_Seated_Row.png?w=800&fm=webp",
+    videoUrl: "https://www.precor.com/VSL17",
   },
   {
     id: "high-row",
@@ -218,7 +233,8 @@ export const MACHINES: CatalogEntry[] = [
     ],
     mistakes: ["Elbows lifting off the pad or shoulders rolling forward to finish the rep.", "Cutting the bottom of the rep short."],
     alternatives: ["biceps-curl", "cable-curl", "barbell-curl"],
-    source: { brand: "Precor", model: "Vitality VSL03" },
+    source: { brand: "Precor", model: "Vitality VSL003BP" },
+    image: "https://images.ctfassets.net/5bv2a78ngtvd/27quUIjVnQd5zengBIiXvK/4b939606533a22e4a6548bd526583a13/VSLC003BP_Biceps_Curl.png?w=800&fm=webp",
     videoUrl: "https://www.precor.com/VSL03",
   },
   {
@@ -236,6 +252,9 @@ export const MACHINES: CatalogEntry[] = [
     ],
     mistakes: ["Lifting the elbows off the pad.", "Letting the weight slam back."],
     alternatives: ["triceps-pushdown", "skull-crusher", "overhead-cable-triceps-extension"],
+    source: { brand: "Precor", model: "Vitality VSL023BP" },
+    image: "https://images.ctfassets.net/5bv2a78ngtvd/19KdMghr3BMKAhVTvNFIYO/f5a0e785bc8dbda4ad6159e09b512a93/VSLC023BP_Tricep_Extension.png?w=800&fm=webp",
+    videoUrl: "https://www.precor.com/VSL19",
   },
   {
     id: "seated-dip",
@@ -251,7 +270,7 @@ export const MACHINES: CatalogEntry[] = [
     ],
     mistakes: ["Leaning forward so the chest takes over.", "Shoulders rising toward the ears."],
     alternatives: ["assisted-dip", "triceps-pushdown", "dip"],
-    source: { brand: "Precor", model: "Vitality VSL15" },
+    source: { brand: "Precor", model: "Vitality" },
     videoUrl: "https://www.precor.com/VSL15",
   },
   {
@@ -272,6 +291,9 @@ export const MACHINES: CatalogEntry[] = [
       "Going too heavy and moving fast.",
     ],
     alternatives: ["cable-crunch", "crunch", "hanging-knee-raise"],
+    source: { brand: "Precor", model: "Vitality VSL014BP" },
+    image: "https://images.ctfassets.net/5bv2a78ngtvd/36X9Z1qy31rG2kYSzkmLJQ/7d5ebcc7ce99a457408834a99b49021a/VSLC014BP_Abdominal.png?w=800&fm=webp",
+    videoUrl: "https://www.precor.com/VSL01",
   },
   {
     id: "back-extension-machine",
@@ -288,6 +310,9 @@ export const MACHINES: CatalogEntry[] = [
     ],
     mistakes: ["Leaning back past straight, which overarches the lower back.", "Throwing the head back.", "Going too heavy for the lower back."],
     alternatives: ["back-extension", "romanian-deadlift"],
+    source: { brand: "Precor", model: "Vitality VSL011BP" },
+    image: "https://images.ctfassets.net/5bv2a78ngtvd/4ATOeshzBed4XI0dRkzj5k/eb9929f62ec463cc2e2e4b5516e61bcc/VSLC011BP_Back_Extension.png?w=800&fm=webp",
+    videoUrl: "https://www.precor.com/VSL02",
   },
   {
     id: "rotary-torso",
@@ -303,6 +328,7 @@ export const MACHINES: CatalogEntry[] = [
     ],
     mistakes: ["Moving fast with momentum.", "Twisting the hips instead of the torso."],
     alternatives: ["woodchop", "pallof-press"],
+    videoUrl: "https://www.precor.com/VSL14",
   },
   {
     id: "leg-press",
@@ -319,6 +345,9 @@ export const MACHINES: CatalogEntry[] = [
     ],
     mistakes: ["Lower back lifting off the pad at the bottom.", "Knees caving inward."],
     alternatives: ["hack-squat", "back-squat", "goblet-squat"],
+    source: { brand: "Precor", model: "Vitality VSL010BP" },
+    image: "https://images.ctfassets.net/5bv2a78ngtvd/4E4fdcKqcg7ueIJxBTnFra/f172a09cbe4096ee421feda05a2bd234/VSLC010BP_Leg_Press-Calf_Extension.png?w=800&fm=webp",
+    videoUrl: "https://www.precor.com/VSL10",
   },
   {
     id: "leg-extension",
@@ -334,6 +363,9 @@ export const MACHINES: CatalogEntry[] = [
     ],
     mistakes: ["Kicking the weight up with momentum.", "Lifting the hips off the seat."],
     alternatives: ["leg-press", "bulgarian-split-squat"],
+    source: { brand: "Precor", model: "Vitality VSL005BP" },
+    image: "https://images.ctfassets.net/5bv2a78ngtvd/VV2K98mVh9ZlTj32LeLnL/1a74490a2bd4dcf020297edf344f9a32/VSLC005BP_Leg_Extension.png?w=800&fm=webp",
+    videoUrl: "https://www.precor.com/VSL09",
   },
   {
     id: "seated-leg-curl",
@@ -350,6 +382,9 @@ export const MACHINES: CatalogEntry[] = [
     ],
     mistakes: ["Letting the weight snap back up.", "Hips lifting off the seat."],
     alternatives: ["lying-leg-curl", "romanian-deadlift"],
+    source: { brand: "Precor", model: "Vitality VSL007BP" },
+    image: "https://images.ctfassets.net/5bv2a78ngtvd/4PmEB3TKjWAQeWzdYqZrBD/fe22f6d7ec1028ef2472790904fc37b3/VSLC007BP_Leg_Curl.png?w=800&fm=webp",
+    videoUrl: "https://www.precor.com/VSL16",
   },
   {
     id: "lying-leg-curl",
@@ -366,6 +401,7 @@ export const MACHINES: CatalogEntry[] = [
     ],
     mistakes: ["Hips rising off the bench.", "Dropping the weight on the way down."],
     alternatives: ["seated-leg-curl", "romanian-deadlift"],
+    videoUrl: "https://www.precor.com/VSL12",
   },
   {
     id: "hip-adduction",
@@ -381,6 +417,9 @@ export const MACHINES: CatalogEntry[] = [
     ],
     mistakes: ["Starting so wide it strains the groin.", "Letting the weight snap the legs open."],
     alternatives: ["goblet-squat"],
+    source: { brand: "Precor", model: "Vitality VSL008BP" },
+    image: "https://images.ctfassets.net/5bv2a78ngtvd/5sWA1N4iWUSftIjuhHOoqN/e3429b674c762235edbe6f06d0f798d9/VSLC008BP_Inner-Outer_Thigh.png?w=800&fm=webp",
+    videoUrl: "https://www.precor.com/VSL06",
   },
   {
     id: "hip-abduction",
@@ -396,6 +435,9 @@ export const MACHINES: CatalogEntry[] = [
     ],
     mistakes: ["Rocking the body to force the legs open.", "Letting the plates crash between reps."],
     alternatives: ["side-plank", "glute-kickback-machine"],
+    source: { brand: "Precor", model: "Vitality VSL008BP" },
+    image: "https://images.ctfassets.net/5bv2a78ngtvd/5sWA1N4iWUSftIjuhHOoqN/e3429b674c762235edbe6f06d0f798d9/VSLC008BP_Inner-Outer_Thigh.png?w=800&fm=webp",
+    videoUrl: "https://www.precor.com/VSL11",
   },
   {
     id: "glute-kickback-machine",
@@ -411,6 +453,7 @@ export const MACHINES: CatalogEntry[] = [
     ],
     mistakes: ["Arching the lower back to push further.", "Swinging the leg."],
     alternatives: ["cable-kickback", "hip-thrust"],
+    videoUrl: "https://www.precor.com/VSL05",
   },
   {
     id: "calf-raise",

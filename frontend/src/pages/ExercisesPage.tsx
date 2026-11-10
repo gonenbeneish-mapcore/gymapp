@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Screen, ScreenHeader } from "../ui/layout";
-import { GroupedList, ListRow, Tile } from "../ui/list";
+import { GroupedList, ListRow } from "../ui/list";
 import { Chip } from "../ui/controls";
 import { SearchIcon } from "../ui/icons";
-import { EquipmentIcon } from "../ui/EquipmentIcon";
+import { ExerciseThumb } from "../ui/ExerciseThumb";
 import { useExerciseMap } from "../data/hooks";
 import type { Equipment, Muscle } from "../data/types";
 import { EQUIPMENT_LABEL, MUSCLE_LABEL } from "../domain/labels";
@@ -92,11 +92,7 @@ export function ExercisesPage() {
                 <ListRow
                   key={e.id}
                   to={`/exercises/${e.id}`}
-                  leading={
-                    <Tile>
-                      <EquipmentIcon equipment={e.equipment} />
-                    </Tile>
-                  }
+                  leading={<ExerciseThumb key={e.id} exercise={e} />}
                   title={e.name}
                   subtitle={exerciseMeta(e)}
                   chevron
