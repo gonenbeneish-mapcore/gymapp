@@ -83,6 +83,9 @@ const exerciseSchema = z.object({
   image: z.string().optional(),
   videoUrl: z.string().optional(),
   source: z.object({ brand: z.string(), model: z.string().optional() }).optional(),
+  machine: z
+    .object({ stackKg: z.number().optional(), addOnKg: z.number().optional(), adjust: z.array(z.string()).optional() })
+    .optional(),
   builtIn: z.boolean(),
 });
 

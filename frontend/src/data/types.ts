@@ -12,6 +12,16 @@ export type Muscle =
   | "adductors"
   | "core";
 
+/** Facts about a specific machine model (from the maker's spec page). */
+export type MachineSpec = {
+  /** Heaviest setting on the weight stack, in kg. */
+  stackKg?: number;
+  /** Extra weight a lever adds on top of the selected plate, in kg. */
+  addOnKg?: number;
+  /** What can be adjusted before a set; [] = nothing to adjust. */
+  adjust?: string[];
+};
+
 /** Built-in catalog entry. User-specific notes live in `ExerciseNote`. */
 export type Exercise = {
   id: string;
@@ -27,6 +37,7 @@ export type Exercise = {
   image?: string;
   videoUrl?: string;
   source?: { brand: string; model?: string };
+  machine?: MachineSpec;
   builtIn: boolean;
 };
 
