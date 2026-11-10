@@ -38,6 +38,18 @@ export default defineConfig({
       workbox: {
         globPatterns: ["**/*.{js,css,html,svg,png,webp,woff2}"],
         navigateFallback: `${base}index.html`,
+        // Machine photos are loaded from the maker's image CDN and kept on the phone for offline use.
+        runtimeCaching: [
+          {
+            urlPattern: ({ url }) => url.hostname === "images.ctfassets.net",
+            handler: "CacheFirst",
+            options: {
+              cacheName: "machine-photos",
+              cacheableResponse: { statuses: [0, 200] },
+              expiration: { maxEntries: 80, maxAgeSeconds: 60 * 60 * 24 * 365 },
+            },
+          },
+        ],
       },
       devOptions: { enabled: false },
     }),

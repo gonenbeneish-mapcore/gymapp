@@ -1,8 +1,8 @@
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Navigate, useLocation, useNavigate, useParams } from "react-router-dom";
-import { GroupedList, ListRow, Tile } from "../ui/list";
+import { GroupedList, ListRow } from "../ui/list";
 import { ChevronLeftIcon, PlayIcon } from "../ui/icons";
-import { EquipmentIcon } from "../ui/EquipmentIcon";
+import { ExerciseThumb } from "../ui/ExerciseThumb";
 import { MuscleMap } from "../ui/MuscleMap";
 import { useCompletedSessions, useExercise, useExerciseMap, useExerciseNote } from "../data/hooks";
 import type { Exercise } from "../data/types";
@@ -48,23 +48,7 @@ function Detail({ exercise: e }: { exercise: Exercise }) {
         >
           <ChevronLeftIcon size={20} />
         </button>
-        {e.image ? (
-          <img src={e.image} alt={`${e.name} machine`} className="h-[300px] w-full object-cover" />
-        ) : (
-          <div className="flex flex-col items-center gap-3 px-5 pb-4 pt-14">
-            <MuscleMap primary={e.primary} secondary={e.secondary} className="h-[270px] w-auto" />
-            <div className="flex items-center gap-4 text-xs font-semibold text-ink-2" aria-hidden="true">
-              <span className="flex items-center gap-1.5">
-                <span className="h-2.5 w-2.5 rounded-full bg-[var(--muscle-hit)]" />
-                Main
-              </span>
-              <span className="flex items-center gap-1.5">
-                <span className="h-2.5 w-2.5 rounded-full bg-[var(--muscle-hit)] opacity-40" />
-                Also works
-              </span>
-            </div>
-          </div>
-        )}
+        <Hero key={e.id} exercise={e} />
       </div>
 
       <div className="flex flex-col gap-6 px-5 pt-5">
@@ -83,6 +67,12 @@ function Detail({ exercise: e }: { exercise: Exercise }) {
           </h2>
           <MuscleLine label="Main" items={e.primary.map((m) => MUSCLE_LABEL[m])} strong />
           {e.secondary.length ? <MuscleLine label="Also" items={e.secondary.map((m) => MUSCLE_LABEL[m])} /> : null}
+          {e.image ? (
+            <div className="mt-2 flex flex-col items-center gap-2.5">
+              <MuscleMap primary={e.primary} secondary={e.secondary} className="h-[200px] w-auto" />
+              <MuscleLegend />
+            </div>
+          ) : null}
         </section>
 
         {history ? <YourHistory times={history.times} last={history.last} best={history.best} /> : null}
@@ -147,11 +137,7 @@ function Detail({ exercise: e }: { exercise: Exercise }) {
                 <ListRow
                   key={a.id}
                   to={`/exercises/${a.id}`}
-                  leading={
-                    <Tile>
-                      <EquipmentIcon equipment={a.equipment} />
-                    </Tile>
-                  }
+                  leading={<ExerciseThumb key={a.id} exercise={a} />}
                   title={a.name}
                   subtitle={exerciseMeta(a)}
                   chevron
@@ -162,6 +148,47 @@ function Detail({ exercise: e }: { exercise: Exercise }) {
         ) : null}
       </div>
     </main>
+  );
+}
+
+/** The machine's photo when there is one (and it loads), otherwise the muscle chart. */
+function Hero({ exercise: e }: { exercise: Exercise }) {
+  const [broken, setBroken] = useState(false);
+  if (e.image && !broken) {
+    return (
+      <div className="px-5 pb-4 pt-[68px]">
+        {/* Product photos have a white background, so they sit on a light panel in both themes. */}
+        <div className="flex justify-center rounded-panel bg-[#f4f5f6] p-3">
+          <img
+            src={e.image}
+            alt={`${e.name} machine`}
+            onError={() => setBroken(true)}
+            className="h-[260px] w-full object-contain"
+          />
+        </div>
+      </div>
+    );
+  }
+  return (
+    <div className="flex flex-col items-center gap-3 px-5 pb-4 pt-14">
+      <MuscleMap primary={e.primary} secondary={e.secondary} className="h-[270px] w-auto" />
+      <MuscleLegend />
+    </div>
+  );
+}
+
+function MuscleLegend() {
+  return (
+    <div className="flex items-center gap-4 text-xs font-semibold text-ink-2" aria-hidden="true">
+      <span className="flex items-center gap-1.5">
+        <span className="h-2.5 w-2.5 rounded-full bg-[var(--muscle-hit)]" />
+        Main
+      </span>
+      <span className="flex items-center gap-1.5">
+        <span className="h-2.5 w-2.5 rounded-full bg-[var(--muscle-hit)] opacity-40" />
+        Also works
+      </span>
+    </div>
   );
 }
 
