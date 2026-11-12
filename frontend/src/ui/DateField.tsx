@@ -56,6 +56,11 @@ export function DateField({
   );
 }
 
+type Mode = "days" | "months" | "years";
+
+/** How many years back the year step offers. */
+const YEARS_BACK = 14;
+
 function Calendar({
   value,
   max,
@@ -69,10 +74,58 @@ function Calendar({
 }) {
   const start = fromDateInput(value);
   const [view, setView] = useState({ year: start.getFullYear(), month: start.getMonth() });
+  const [mode, setMode] = useState<Mode>("days");
   const maxDate = fromDateInput(max);
-  const atLatestMonth = view.year > maxDate.getFullYear() || (view.year === maxDate.getFullYear() && view.month >= maxDate.getMonth());
-  const yesterday = toDateInput(new Date(maxDate.getFullYear(), maxDate.getMonth(), maxDate.getDate() - 1).getTime());
+  const maxYear = maxDate.getFullYear();
+  const atLatestMonth = view.year > maxYear || (view.year === maxYear && view.month >= maxDate.getMonth());
+  const yesterday = toDateInput(new Date(maxYear, maxDate.getMonth(), maxDate.getDate() - 1).getTime());
   const title = new Date(view.year, view.month, 1).toLocaleDateString("en-GB", { month: "long", year: "numeric" });
+
+  if (mode === "years") {
+    const years = Array.from({ length: YEARS_BACK + 1 }, (_, i) => maxYear - i);
+    return (
+      <div className="flex flex-col gap-3">
+        <StepHeader title="Pick a year" onBack={() => setMode("days")} />
+        <div className="grid grid-cols-3 gap-2">
+          {years.map((y) => (
+            <ChoiceButton
+              key={y}
+              selected={y === view.year}
+              onClick={() => {
+                setView((v) => ({ year: y, month: y === maxYear ? Math.min(v.month, maxDate.getMonth()) : v.month }));
+                setMode("months");
+              }}
+            >
+              {y}
+            </ChoiceButton>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (mode === "months") {
+    return (
+      <div className="flex flex-col gap-3">
+        <StepHeader title={`Pick a month in ${view.year}`} onBack={() => setMode("years")} backLabel="Back to years" />
+        <div className="grid grid-cols-3 gap-2">
+          {Array.from({ length: 12 }, (_, m) => (
+            <ChoiceButton
+              key={m}
+              selected={m === view.month}
+              disabled={view.year === maxYear && m > maxDate.getMonth()}
+              onClick={() => {
+                setView({ year: view.year, month: m });
+                setMode("days");
+              }}
+            >
+              {new Date(view.year, m, 1).toLocaleDateString("en-GB", { month: "short" })}
+            </ChoiceButton>
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col gap-3">
@@ -85,9 +138,15 @@ function Calendar({
         >
           <ChevronLeftIcon size={20} />
         </button>
-        <h2 className="font-display text-lg font-bold" aria-live="polite">
-          {title}
-        </h2>
+        <button
+          type="button"
+          aria-label={`${title}. Change month or year`}
+          onClick={() => setMode("years")}
+          className="flex h-11 items-center gap-1.5 rounded-full px-3 font-display text-lg font-bold active:bg-surface-2"
+        >
+          <span aria-live="polite">{title}</span>
+          <ChevronDownIcon size={16} className="text-ink-3" />
+        </button>
         <button
           type="button"
           aria-label="Next month"
@@ -172,5 +231,49 @@ function Calendar({
         </button>
       </div>
     </div>
+  );
+}
+
+function StepHeader({ title, onBack, backLabel = "Back to days" }: { title: string; onBack: () => void; backLabel?: string }) {
+  return (
+    <div className="flex items-center gap-3">
+      <button
+        type="button"
+        aria-label={backLabel}
+        onClick={onBack}
+        className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-surface-2 text-ink active:bg-surface-3"
+      >
+        <ChevronLeftIcon size={20} />
+      </button>
+      <h2 className="font-display text-lg font-bold">{title}</h2>
+    </div>
+  );
+}
+
+function ChoiceButton({
+  selected,
+  disabled,
+  onClick,
+  children,
+}: {
+  selected: boolean;
+  disabled?: boolean;
+  onClick: () => void;
+  children: string | number;
+}) {
+  return (
+    <button
+      type="button"
+      aria-pressed={selected}
+      disabled={disabled}
+      onClick={onClick}
+      className={clsx(
+        "h-14 rounded-[14px] font-display text-[17px] font-semibold tabular transition-colors",
+        selected ? "bg-accent text-accent-ink" : "bg-surface-2 text-ink active:bg-surface-3",
+        disabled && "opacity-30",
+      )}
+    >
+      {children}
+    </button>
   );
 }
