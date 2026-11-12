@@ -240,25 +240,25 @@ function TrendCard({ series, profile, now }: { series: TrendPoint[]; profile: Pr
     <section aria-label="Weight trend" className="flex flex-col gap-4 rounded-panel bg-surface p-[18px] animate-rise">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <div className="text-xs font-bold uppercase tracking-[0.08em] text-ink-3">Trend weight</div>
+          <div className="text-xs font-bold uppercase tracking-[0.08em] text-ink-3">
+            Weight · {whenShort(last.at, now)}
+          </div>
           <div className="mt-1 font-display text-[44px] font-bold leading-none tabular">
-            {r1(last.trend)}
+            {r1(last.value)}
             <span className="text-lg text-ink-3"> kg</span>
           </div>
-          <div className="mt-1.5 text-[13px] text-ink-2">
-            {lastReadingLabel(last.at, now)}: {r1(last.value)} kg
-          </div>
+          <div className="mt-1.5 text-[13px] text-ink-2">Trend {r1(last.trend)} kg, smoothed over recent days</div>
         </div>
         <div className="text-right">
           {rate !== null ? (
-            <span className="inline-block rounded-full bg-accent-soft px-2.5 py-1 text-[13px] font-bold text-accent-text">
+            <span className="inline-block whitespace-nowrap rounded-full bg-accent-soft px-2.5 py-1 text-[13px] font-bold text-accent-text">
               {signed(rate, 2)} kg/wk
             </span>
           ) : (
             <span className="inline-block max-w-[120px] text-xs text-ink-3">Weekly rate after 2 weeks of weigh-ins</span>
           )}
           {change30 !== null ? (
-            <div className="mt-1.5 text-xs text-ink-3">{signed(change30)} kg in 30 days</div>
+            <div className="mt-1.5 whitespace-nowrap text-xs text-ink-3">{signed(change30)} kg in 30 days</div>
           ) : null}
         </div>
       </div>
@@ -642,12 +642,6 @@ function RecentWeighIns({
       </GroupedList>
     </Section>
   );
-}
-
-/** "Scale today", "Scale yesterday" or "Last weigh-in Fri 6 Nov". */
-function lastReadingLabel(at: number, now: number): string {
-  const w = whenShort(at, now);
-  return w === "Today" || w === "Yesterday" ? `Scale ${w.toLowerCase()}` : `Last weigh-in ${w}`;
 }
 
 function whenShort(at: number, now: number): string {
