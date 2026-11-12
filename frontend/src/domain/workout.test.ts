@@ -10,8 +10,11 @@ import {
   removeExercise,
   removePlannedSet,
   renameWorkout,
+  repsLabel,
   restLabel,
   setExerciseRest,
+  setRepRange,
+  sharedRepTarget,
   totalSets,
 } from "./workout";
 
@@ -99,5 +102,29 @@ describe("labels", () => {
     expect(restLabel(90)).toBe("1:30");
     expect(restLabel(45)).toBe("0:45");
     expect(restLabel(120)).toBe("2:00");
+  });
+});
+
+describe("rep ranges", () => {
+  it("sets a range on work sets only and can go back to a fixed number", () => {
+    let w = editPlannedSet(base(), 0, 0, { type: "warmup", reps: 15 });
+    w = setRepRange(w, 0, 8, 12);
+    expect(w.exercises[0].sets).toEqual([
+      { kg: 45, reps: 15, type: "warmup" },
+      { kg: 45, reps: 8, repsMax: 12 },
+    ]);
+    w = setRepRange(w, 0, 10);
+    expect(w.exercises[0].sets[1]).toEqual({ kg: 45, reps: 10 });
+    expect(setRepRange(base(), 1, 12, 12).exercises[1].sets[0]).toEqual({ kg: 35, reps: 12 });
+  });
+
+  it("labels and summarises ranges", () => {
+    expect(repsLabel({ reps: 8, repsMax: 12 })).toBe("8–12");
+    expect(repsLabel({ reps: 10 })).toBe("10");
+    const w = setRepRange(base(), 0, 8, 12);
+    expect(sharedRepTarget(w.exercises[0])).toEqual({ min: 8, max: 12 });
+    expect(exerciseSummary(w.exercises[0])).toBe("2 × 8–12 · 45 kg");
+    const mixed = editPlannedSet(w, 0, 1, { reps: 6 });
+    expect(sharedRepTarget(mixed.exercises[0])).toBeNull();
   });
 });

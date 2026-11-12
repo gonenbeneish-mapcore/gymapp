@@ -67,7 +67,8 @@ export type ExerciseNote = {
 
 export type SetType = "normal" | "warmup" | "drop" | "failure";
 
-export type PlannedSet = { kg: number; reps: number; type?: SetType };
+/** One planned set. With `repsMax`, the target is a range: `reps` to `repsMax` (e.g. 8–12). */
+export type PlannedSet = { kg: number; reps: number; repsMax?: number; type?: SetType };
 
 export type WorkoutExercise = {
   exerciseId: string;
@@ -97,6 +98,8 @@ export type SessionSet = {
   /** What the workout plan asked for in this set, kept so History can show planned vs done. */
   targetKg?: number;
   targetReps?: number;
+  /** Top of the plan's rep range for this set, when it has one. */
+  targetRepsMax?: number;
 };
 
 export type SessionExercise = {

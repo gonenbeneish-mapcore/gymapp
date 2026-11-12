@@ -35,7 +35,7 @@ const workoutSchema = z.object({
     z.object({
       exerciseId: z.string(),
       restSeconds: z.number().optional(),
-      sets: z.array(z.object({ kg: z.number(), reps: z.number(), type: setType.optional() })),
+      sets: z.array(z.object({ kg: z.number(), reps: z.number(), repsMax: z.number().optional(), type: setType.optional() })),
     }),
   ),
 });
@@ -67,6 +67,7 @@ const sessionSchema = z.object({
           prevReps: z.number().optional(),
           targetKg: z.number().optional(),
           targetReps: z.number().optional(),
+          targetRepsMax: z.number().optional(),
         }),
       ),
     }),
