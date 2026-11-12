@@ -36,6 +36,8 @@ export type MachineSpec = {
   stackKg?: number;
   /** Extra weight a lever adds on top of the selected plate, in kg. */
   addOnKg?: number;
+  /** Weight of one plate on the stack, in kg, when the maker lists it. */
+  plateKg?: number;
   /** What can be adjusted before a set; [] = nothing to adjust. */
   adjust?: string[];
 };
@@ -63,11 +65,14 @@ export type Exercise = {
 export type ExerciseNote = {
   exerciseId: string;
   mySetup?: string;
+  /** Weight of one plate on this machine's stack, as measured at the gym. */
+  plateKg?: number;
 };
 
 export type SetType = "normal" | "warmup" | "drop" | "failure";
 
-export type PlannedSet = { kg: number; reps: number; type?: SetType };
+/** One planned set. With `repsMax`, the target is a range: `reps` to `repsMax` (e.g. 8–12). */
+export type PlannedSet = { kg: number; reps: number; repsMax?: number; type?: SetType };
 
 export type WorkoutExercise = {
   exerciseId: string;
@@ -97,6 +102,8 @@ export type SessionSet = {
   /** What the workout plan asked for in this set, kept so History can show planned vs done. */
   targetKg?: number;
   targetReps?: number;
+  /** Top of the plan's rep range for this set, when it has one. */
+  targetRepsMax?: number;
 };
 
 export type SessionExercise = {

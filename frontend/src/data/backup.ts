@@ -35,7 +35,7 @@ const workoutSchema = z.object({
     z.object({
       exerciseId: z.string(),
       restSeconds: z.number().optional(),
-      sets: z.array(z.object({ kg: z.number(), reps: z.number(), type: setType.optional() })),
+      sets: z.array(z.object({ kg: z.number(), reps: z.number(), repsMax: z.number().optional(), type: setType.optional() })),
     }),
   ),
 });
@@ -67,6 +67,7 @@ const sessionSchema = z.object({
           prevReps: z.number().optional(),
           targetKg: z.number().optional(),
           targetReps: z.number().optional(),
+          targetRepsMax: z.number().optional(),
         }),
       ),
     }),
@@ -87,7 +88,12 @@ const exerciseSchema = z.object({
   videoUrl: z.string().optional(),
   source: z.object({ brand: z.string(), model: z.string().optional() }).optional(),
   machine: z
-    .object({ stackKg: z.number().optional(), addOnKg: z.number().optional(), adjust: z.array(z.string()).optional() })
+    .object({
+      stackKg: z.number().optional(),
+      addOnKg: z.number().optional(),
+      plateKg: z.number().optional(),
+      adjust: z.array(z.string()).optional(),
+    })
     .optional(),
   builtIn: z.boolean(),
 });
@@ -99,7 +105,7 @@ const backupSchema = z.object({
   data: z.object({
     workouts: z.array(workoutSchema),
     sessions: z.array(sessionSchema),
-    exerciseNotes: z.array(z.object({ exerciseId: z.string(), mySetup: z.string().optional() })),
+    exerciseNotes: z.array(z.object({ exerciseId: z.string(), mySetup: z.string().optional(), plateKg: z.number().optional() })),
     customExercises: z.array(exerciseSchema),
     measurements: z
       .array(z.object({ id: z.string(), kind: z.enum(["weight", "waist"]), value: z.number(), at: z.number() }))

@@ -46,6 +46,7 @@ export function createSessionFromWorkout(
           prevReps: p?.reps,
           targetKg: planned.kg,
           targetReps: planned.reps,
+          targetRepsMax: planned.repsMax,
         };
       }),
     };
@@ -122,6 +123,16 @@ export function editSet(
   patch: Partial<Pick<SessionSet, "kg" | "reps" | "type">>,
 ): Session {
   return mapSet(s, exIndex, setIndex, (x) => ({ ...x, ...patch }));
+}
+
+/** Set the weight of every work set (not warm-ups) that hasn't been done yet. */
+export function applyWeight(s: Session, exIndex: number, kg: number): Session {
+  return {
+    ...s,
+    exercises: s.exercises.map((ex, i) =>
+      i !== exIndex ? ex : { ...ex, sets: ex.sets.map((x) => (x.done || x.type === "warmup" ? x : { ...x, kg })) },
+    ),
+  };
 }
 
 const TYPE_CYCLE: SetType[] = ["normal", "warmup", "drop", "failure"];

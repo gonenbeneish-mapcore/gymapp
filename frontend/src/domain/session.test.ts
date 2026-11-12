@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import type { Session, Workout } from "../data/types";
 import {
   addSet,
+  applyWeight,
   adjustRest,
   compareWith,
   createSessionFromWorkout,
@@ -182,5 +183,17 @@ describe("planning", () => {
     expect(days[0].getDate()).toBe(2);
     expect(days[0].getDay()).toBe(1);
     expect(days[6].getDate()).toBe(8);
+  });
+});
+
+describe("applyWeight", () => {
+  it("changes only work sets that aren't done yet", () => {
+    const s0 = createSessionFromWorkout(plan("w1", "Push", 0), [], "s1", 0);
+    const warm = { ...s0, exercises: s0.exercises.map((e, i) => (i === 0 ? { ...e, sets: [{ ...e.sets[0], type: "warmup" as const }, e.sets[1]] } : e)) };
+    const ticked = toggleSet(warm, 0, 1, 0);
+    const added = addSet(ticked, 0);
+    const s = applyWeight(added, 0, 47.5);
+    expect(s.exercises[0].sets.map((x) => x.kg)).toEqual([45, 45, 47.5]);
+    expect(s.exercises[1].sets[0].kg).toBe(35);
   });
 });

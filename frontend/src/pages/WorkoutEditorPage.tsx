@@ -8,6 +8,7 @@ import { NumberPadSheet } from "../ui/NumberPad";
 import { ChevronDownIcon, ChevronLeftIcon, PlayIcon, PlusIcon } from "../ui/icons";
 import { ExerciseThumb } from "../ui/ExerciseThumb";
 import { ExerciseBrowser } from "./ExerciseBrowser";
+import { RepRangePicker } from "./RepRangePicker";
 import { useActiveSession, useCompletedSessions, useExerciseMap, useWorkout } from "../data/hooks";
 import { deleteWorkout, updateWorkout } from "../data/workouts";
 import { startWorkout } from "../data/sessions";
@@ -22,8 +23,12 @@ import {
   removeExercise,
   removePlannedSet,
   renameWorkout,
+  repsLabel,
   restLabel,
   setExerciseRest,
+  setRepRange,
+  sharedRepTarget,
+  targetLabel,
   totalSets,
 } from "../domain/workout";
 import { nextSetType } from "../domain/session";
@@ -49,6 +54,7 @@ function Editor({ workout: w }: { workout: Workout }) {
   const [open, setOpen] = useState<number | null>(null);
   const [pad, setPad] = useState<PadTarget | null>(null);
   const [restFor, setRestFor] = useState<number | null>(null);
+  const [rangeFor, setRangeFor] = useState<number | null>(null);
   const [picking, setPicking] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [starting, setStarting] = useState(false);
@@ -181,6 +187,14 @@ function Editor({ workout: w }: { workout: Workout }) {
                   </button>
                   <button
                     type="button"
+                    onClick={() => setRangeFor(i)}
+                    className="flex h-11 items-center justify-between rounded-xl bg-surface-2 px-3.5 text-sm"
+                  >
+                    <span className="font-semibold">Reps per set</span>
+                    <span className="font-display font-bold tabular text-ink-2">{targetLabel(sharedRepTarget(x))}</span>
+                  </button>
+                  <button
+                    type="button"
                     onClick={() => setRestFor(i)}
                     className="flex h-11 items-center justify-between rounded-xl bg-surface-2 px-3.5 text-sm"
                   >
@@ -261,7 +275,13 @@ function Editor({ workout: w }: { workout: Workout }) {
       {pad && padSet ? (
         <NumberPadSheet
           open
-          title={pad.field === "kg" ? `Set ${setLabel(w.exercises[pad.ex].sets, pad.set)} · weight` : `Set ${setLabel(w.exercises[pad.ex].sets, pad.set)} · reps`}
+          title={
+            pad.field === "kg"
+              ? `Set ${setLabel(w.exercises[pad.ex].sets, pad.set)} · weight`
+              : padSet.repsMax
+                ? `Set ${setLabel(w.exercises[pad.ex].sets, pad.set)} · reps from (up to ${padSet.repsMax})`
+                : `Set ${setLabel(w.exercises[pad.ex].sets, pad.set)} · reps`
+          }
           unit={pad.field === "kg" ? "kg" : "reps"}
           initial={pad.field === "kg" ? kg(padSet.kg) : String(padSet.reps)}
           options={pad.field === "kg" ? { decimals: 2, maxInt: 3, step: 2.5 } : { decimals: 0, maxInt: 3, step: 1 }}
@@ -270,7 +290,15 @@ function Editor({ workout: w }: { workout: Workout }) {
             const target = pad;
             setPad(null);
             const n = Number.parseFloat(v) || 0;
-            edit((y) => editPlannedSet(y, target.ex, target.set, { [target.field]: target.field === "reps" ? Math.max(1, Math.round(n)) : n }));
+            if (target.field === "kg") {
+              edit((y) => editPlannedSet(y, target.ex, target.set, { kg: n }));
+            } else {
+              const reps = Math.max(1, Math.round(n));
+              edit((y) => {
+                const top = y.exercises[target.ex]?.sets[target.set]?.repsMax;
+                return editPlannedSet(y, target.ex, target.set, { reps, repsMax: top && top > reps ? top : undefined });
+              });
+            }
           }}
         />
       ) : null}
@@ -303,6 +331,19 @@ function Editor({ workout: w }: { workout: Workout }) {
               })}
             </div>
           </div>
+        ) : null}
+      </Sheet>
+
+      <Sheet open={rangeFor !== null} onClose={() => setRangeFor(null)} title="Reps per set">
+        {rangeFor !== null && w.exercises[rangeFor] ? (
+          <RepRangePicker
+            initial={sharedRepTarget(w.exercises[rangeFor]) ?? { min: w.exercises[rangeFor].sets[0].reps }}
+            onApply={(min, max) => {
+              const ex = rangeFor;
+              setRangeFor(null);
+              edit((y) => setRepRange(y, ex, min, max));
+            }}
+          />
         ) : null}
       </Sheet>
 
@@ -386,8 +427,8 @@ function PlannedSetRow({
       <button type="button" onClick={onKg} aria-label={`Set ${label} weight ${kg(set.kg)} kilograms, edit`} className={cell}>
         {kg(set.kg)}
       </button>
-      <button type="button" onClick={onReps} aria-label={`Set ${label} ${set.reps} reps, edit`} className={cell}>
-        {set.reps}
+      <button type="button" onClick={onReps} aria-label={`Set ${label} ${repsLabel(set)} reps, edit`} className={cell}>
+        {repsLabel(set)}
       </button>
       {onRemove ? (
         <button

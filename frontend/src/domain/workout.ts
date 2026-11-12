@@ -75,6 +75,54 @@ export function setDefaultRest(w: Workout, seconds: number): Workout {
   return { ...w, restSeconds: seconds };
 }
 
+/** Common rep ranges offered in the editor. */
+export const REP_RANGE_PRESETS: [number, number][] = [
+  [5, 8],
+  [6, 10],
+  [8, 12],
+  [10, 15],
+  [12, 15],
+  [15, 20],
+];
+
+/**
+ * Give every work set (not warm-ups) of an exercise the same rep target:
+ * a range `min`–`max`, or a fixed number when `max` is missing or not above `min`.
+ */
+export function setRepRange(w: Workout, exIndex: number, min: number, max?: number): Workout {
+  const top = max !== undefined && max > min ? max : undefined;
+  return mapExercise(w, exIndex, (x) => ({
+    ...x,
+    sets: x.sets.map((s) => {
+      if (s.type === "warmup") return s;
+      const next: PlannedSet = { ...s, reps: min };
+      if (top === undefined) delete next.repsMax;
+      else next.repsMax = top;
+      return next;
+    }),
+  }));
+}
+
+/** "8–12" or "10". */
+export function repsLabel(s: Pick<PlannedSet, "reps" | "repsMax">): string {
+  return s.repsMax && s.repsMax > s.reps ? `${s.reps}–${s.repsMax}` : String(s.reps);
+}
+
+/** "8–12", "10", or "Mixed" when the sets differ. */
+export function targetLabel(t: { min: number; max?: number } | null): string {
+  if (!t) return "Mixed";
+  return t.max && t.max > t.min ? `${t.min}–${t.max}` : String(t.min);
+}
+
+/** The work sets' shared rep target, if they all have the same one. */
+export function sharedRepTarget(x: WorkoutExercise): { min: number; max?: number } | null {
+  const work = x.sets.filter((s) => s.type !== "warmup");
+  if (!work.length) return null;
+  const first = work[0];
+  const same = work.every((s) => s.reps === first.reps && (s.repsMax ?? 0) === (first.repsMax ?? 0));
+  return same ? { min: first.reps, max: first.repsMax } : null;
+}
+
 export function totalSets(w: Workout): number {
   return w.exercises.reduce((n, x) => n + x.sets.length, 0);
 }
@@ -89,8 +137,10 @@ export function exerciseSummary(x: WorkoutExercise): string {
     const hi = Math.max(...v);
     return (lo === hi ? fmt(lo) : `${fmt(lo)}–${fmt(hi)}`) + unit;
   };
-  const sameReps = Math.min(...reps) === Math.max(...reps);
   const weight = Math.max(...kgs) > 0 ? ` · ${range(kgs, " kg")}` : "";
+  const target = sharedRepTarget(x);
+  if (target && x.sets.every((s) => s.type !== "warmup")) return `${n} × ${repsLabel({ reps: target.min, repsMax: target.max })}${weight}`;
+  const sameReps = Math.min(...reps) === Math.max(...reps);
   if (sameReps) return `${n} × ${reps[0]}${weight}`;
   return `${n} sets · ${range(reps)} reps${weight}`;
 }

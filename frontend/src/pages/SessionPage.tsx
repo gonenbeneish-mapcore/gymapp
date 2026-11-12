@@ -1,12 +1,15 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import clsx from "clsx";
-import { useActiveSession, useExerciseMap, useNotesMap } from "../data/hooks";
+import { useActiveSession, useCompletedSessions, useExerciseMap, useNotesMap } from "../data/hooks";
+import { addWeightHint } from "../domain/progression";
 import { discardSession, finishSession, saveSetup, updateSession } from "../data/sessions";
 import type { Session, SessionSet } from "../data/types";
 import {
   addSet,
   adjustRest,
+  applyWeight,
+  lastPerformance,
   doneSetCount,
   editSet,
   isExerciseComplete,
@@ -57,6 +60,25 @@ function ActiveSession({
   const ex = session.exercises[cur];
   const info = ex ? exercises.get(ex.exerciseId) : undefined;
   const setup = ex ? notes.get(ex.exerciseId)?.mySetup : undefined;
+  const completed = useCompletedSessions();
+  // The plan's rep target for this exercise ("8–12"), and whether it's time to add weight.
+  const work = ex ? ex.sets.filter((x) => x.type !== "warmup" && x.targetReps != null) : [];
+  const target = work.length
+    ? (() => {
+        const lo = Math.min(...work.map((x) => x.targetReps!));
+        const hi = Math.max(...work.map((x) => x.targetRepsMax ?? x.targetReps!));
+        return hi > lo ? `${lo}–${hi}` : String(lo);
+      })()
+    : null;
+  const hint =
+    ex && info && completed
+      ? addWeightHint(ex, lastPerformance(ex.exerciseId, completed.filter((c) => c.id !== session.id)), {
+          equipment: info.equipment,
+          plateKg: notes.get(ex.exerciseId)?.plateKg ?? info.machine?.plateKg,
+          addOnKg: info.machine?.addOnKg,
+          stackKg: info.machine?.stackKg,
+        })
+      : null;
   const firstOpen = ex ? ex.sets.findIndex((s) => !s.done) : -1;
   const completeCount = session.exercises.filter(isExerciseComplete).length;
   const totalSets = session.exercises.reduce((n, x) => n + x.sets.length, 0);
@@ -169,7 +191,47 @@ function ActiveSession({
             <SlidersIcon size={14} className="text-ink-3" />
             {setup ?? <span className="text-ink-3">Add my setup (seat, pads…)</span>}
           </button>
+          {target ? (
+            <div className="mt-2 text-sm text-ink-2">
+              Aim for <strong className="font-semibold text-ink">{target} reps</strong> a set
+            </div>
+          ) : null}
         </section>
+
+        {hint ? (
+          <section
+            aria-label="Time to add weight"
+            className="flex items-center gap-3 rounded-[18px] bg-accent-soft px-4 py-3 animate-rise"
+          >
+            <div className="min-w-0 flex-1 text-sm text-ink">
+              <div className="font-bold text-accent-text">
+                {hint.next.how === "top" ? "Top of the stack" : "Time to go heavier"}
+              </div>
+              <div className="mt-0.5 text-ink-2">
+                Last time you hit {hint.topReps}+ reps on every set at {kg(hint.lastKg)} kg.
+                {hint.next.how === "top"
+                  ? " This machine can't go heavier, so add reps or slow the lowering down."
+                  : hint.next.how === "add-on"
+                    ? " Flip the add-on lever."
+                    : hint.next.how === "plate"
+                      ? " Move the pin one plate down."
+                      : ""}
+              </div>
+            </div>
+            {hint.next.how !== "top" ? (
+              <button
+                type="button"
+                onClick={() => {
+                  const next = hint.next;
+                  if (next.how !== "top") void update((s) => applyWeight(s, cur, next.kg));
+                }}
+                className="h-11 shrink-0 rounded-[14px] bg-accent px-3.5 text-sm font-bold text-accent-ink"
+              >
+                Use {kg(hint.next.kg)} kg
+              </button>
+            ) : null}
+          </section>
+        ) : null}
 
         <section aria-label="Sets" className="flex flex-col gap-1">
           <div className="grid grid-cols-[34px_1fr_74px_58px_48px] gap-2 px-2 pb-1 text-[11px] font-bold uppercase tracking-[0.06em] text-ink-3">

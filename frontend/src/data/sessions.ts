@@ -1,5 +1,5 @@
 import { db, newId } from "./db";
-import type { Session } from "./types";
+import type { ExerciseNote, Session } from "./types";
 import { createSessionFromWorkout } from "../domain/session";
 
 export async function getActiveSession(): Promise<Session | undefined> {
@@ -46,8 +46,22 @@ export async function saveFeedback(id: string, feel: number | undefined, notes: 
   await updateSession(id, (s) => ({ ...s, feel, notes: notes.trim() || undefined }));
 }
 
+/** Merge into an exercise's note; the note is removed once it holds nothing. */
+async function patchNote(exerciseId: string, patch: Partial<ExerciseNote>): Promise<void> {
+  await db.transaction("rw", db.exerciseNotes, async () => {
+    const next: ExerciseNote = { ...(await db.exerciseNotes.get(exerciseId)), ...patch, exerciseId };
+    if (!next.mySetup) delete next.mySetup;
+    if (!next.plateKg) delete next.plateKg;
+    if (next.mySetup || next.plateKg) await db.exerciseNotes.put(next);
+    else await db.exerciseNotes.delete(exerciseId);
+  });
+}
+
 export async function saveSetup(exerciseId: string, mySetup: string): Promise<void> {
-  const value = mySetup.trim();
-  if (value) await db.exerciseNotes.put({ exerciseId, mySetup: value });
-  else await db.exerciseNotes.delete(exerciseId);
+  await patchNote(exerciseId, { mySetup: mySetup.trim() || undefined });
+}
+
+/** Plate weight for a machine; `undefined` clears it. */
+export async function savePlateKg(exerciseId: string, plateKg: number | undefined): Promise<void> {
+  await patchNote(exerciseId, { plateKg: plateKg && plateKg > 0 ? plateKg : undefined });
 }
