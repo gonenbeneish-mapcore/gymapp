@@ -16,6 +16,7 @@ import type { MeasureKind, Measurement, Profile } from "../data/types";
 import {
   DAY,
   averageSince,
+  fittingRange,
   bmi,
   bmiCategory,
   changeOver,
@@ -60,11 +61,19 @@ export function MeasurePage() {
   const [pad, setPad] = useState<PadTarget | null>(null);
   const [editing, setEditing] = useState<Measurement | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [range, setRange] = useState<Range>("3M");
+  // null until the user taps a range; until then the range fits the data.
+  const [pickedRange, setPickedRange] = useState<Range | null>(null);
   // Captured once per visit so the numbers don't shift while the page is open.
   const [now] = useState(() => Date.now());
 
   const series = useMemo(() => (weights ? trendSeries(weights) : undefined), [weights]);
+  const range: Range =
+    pickedRange ??
+    (series?.length
+      ? ((Object.keys(RANGE_DAYS) as Range[]).find(
+          (r) => RANGE_DAYS[r] === fittingRange(series[0].at, now, Object.values(RANGE_DAYS)),
+        ) ?? "1Y")
+      : "3M");
   const lastWeight = weights?.[weights.length - 1];
   const lastWaist = waists?.[waists.length - 1];
 
@@ -117,7 +126,7 @@ export function MeasurePage() {
           <Segmented
             label="Chart range"
             value={range}
-            onChange={setRange}
+            onChange={setPickedRange}
             className="w-full"
             options={(Object.keys(RANGE_DAYS) as Range[]).map((r) => ({ value: r, label: r }))}
           />

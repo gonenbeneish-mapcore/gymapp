@@ -7,6 +7,7 @@ import {
   bmiCategory,
   changeOver,
   goalEta,
+  fittingRange,
   goalProgress,
   readingChangeOver,
   lowestSince,
@@ -132,5 +133,20 @@ describe("body numbers", () => {
     expect(signed(0.45)).toBe("+0.5");
     expect(signed(-0.04)).toBe("0.0");
     expect(signed(-0.123, 2)).toBe("−0.12");
+  });
+});
+
+describe("fittingRange", () => {
+  const ranges = [30, 90, 180, 365];
+  it("picks the shortest range that shows the oldest reading", () => {
+    expect(fittingRange(T0, T0 + 10 * DAY, ranges)).toBe(30);
+    expect(fittingRange(T0, T0 + 30 * DAY, ranges)).toBe(30);
+    expect(fittingRange(T0, T0 + 31 * DAY, ranges)).toBe(90);
+    expect(fittingRange(T0, T0 + 175 * DAY, ranges)).toBe(180);
+    expect(fittingRange(T0, T0 + 200 * DAY, ranges)).toBe(365);
+  });
+
+  it("falls back to the longest range for a longer history", () => {
+    expect(fittingRange(T0, T0 + 900 * DAY, ranges)).toBe(365);
   });
 });
