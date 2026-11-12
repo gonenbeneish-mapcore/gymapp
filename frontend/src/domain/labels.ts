@@ -34,3 +34,7 @@ export const SET_TYPE_LABEL: Record<SetType, string> = {
   drop: "Drop set",
   failure: "Set to failure",
 };
+
+/** Every equipment type and muscle group, in display order. */
+export const EQUIPMENT_LIST = Object.keys(EQUIPMENT_LABEL) as Equipment[];
+export const MUSCLE_LIST = Object.keys(MUSCLE_LABEL) as Muscle[];

@@ -6,13 +6,15 @@ import { GroupedList, ListRow, Tile } from "../ui/list";
 import { buttonClass } from "../ui/buttonClass";
 import { Button } from "../ui/Button";
 import { Sheet } from "../ui/Sheet";
-import { CheckIcon, PlayIcon, SlidersIcon } from "../ui/icons";
+import { CheckIcon, PlayIcon, PlusIcon, SlidersIcon } from "../ui/icons";
 import { useActiveSession, useCompletedSessions, useExerciseMap, useWorkouts } from "../data/hooks";
 import { startWorkout } from "../data/sessions";
+import { createWorkout } from "../data/workouts";
 import type { Exercise, Session, Workout } from "../data/types";
 import { doneSetCount, nextWorkout, sameDay, volume, weekDays } from "../domain/session";
 import { MUSCLE_LABEL } from "../domain/labels";
-import { clock, kg, shortDate, thousands } from "../domain/format";
+import { clock, shortDate, thousands } from "../domain/format";
+import { exerciseSummary } from "../domain/workout";
 import { useNow } from "../lib/useNow";
 import { BackupReminder } from "./BackupReminder";
 
@@ -33,6 +35,10 @@ function muscleLine(w: Workout, exercises: Map<string, Exercise>) {
     .slice(0, 3)
     .map(([m]) => MUSCLE_LABEL[m as keyof typeof MUSCLE_LABEL])
     .join(" · ");
+}
+
+function plural(n: number, word: string) {
+  return `${n} ${word}${n === 1 ? "" : "s"}`;
 }
 
 function setCount(w: Workout) {
@@ -175,8 +181,26 @@ export function TrainPage() {
         </div>
       </Section>
 
-      {workouts && workouts.length > 0 ? (
-        <Section title="Your workouts" className="animate-rise [animation-delay:.19s]">
+      {workouts ? (
+        <Section
+          title="Your workouts"
+          action={
+            <button
+              type="button"
+              onClick={async () => navigate(`/workouts/${await createWorkout()}`)}
+              className="flex h-11 items-center gap-1 text-[15px] font-semibold text-accent-text"
+            >
+              <PlusIcon size={16} />
+              New
+            </button>
+          }
+          className="animate-rise [animation-delay:.19s]"
+        >
+          {workouts.length === 0 ? (
+            <p className="rounded-panel bg-surface px-4 py-6 text-center text-[15px] text-ink-2">
+              No workouts yet. Tap New to make your first plan.
+            </p>
+          ) : null}
           <GroupedList>
             {workouts.map((w) => {
               const last = completed ? lastDone(w, completed) : undefined;
@@ -185,7 +209,7 @@ export function TrainPage() {
                   key={w.id}
                   leading={<Tile>{initials(w.name)}</Tile>}
                   title={w.name}
-                  subtitle={`${w.exercises.length} exercises · ${last ? `last ${shortDate(last)}` : "not done yet"}`}
+                  subtitle={`${plural(w.exercises.length, "exercise")} · ${last ? `last ${shortDate(last)}` : "not done yet"}`}
                   chevron
                   onClick={() => setPreview(w)}
                 />
@@ -201,27 +225,27 @@ export function TrainPage() {
             <div>
               <h2 className="font-display text-[28px] font-bold tracking-[-0.02em]">{preview.name}</h2>
               <p className="mt-1 text-sm text-ink-2">
-                {preview.exercises.length} exercises · {setCount(preview)} sets · ~{estimateMinutes(preview)} min
+                {plural(preview.exercises.length, "exercise")} · {plural(setCount(preview), "set")} · ~{estimateMinutes(preview)} min
               </p>
             </div>
             <ol className="flex max-h-[45vh] flex-col overflow-y-auto rounded-panel bg-surface-2 [&>*+*]:border-t [&>*+*]:border-divider">
               {preview.exercises.map((x, i) => (
                 <li key={i} className="flex items-center justify-between gap-3 px-4 py-3">
                   <span className="font-semibold">{exercises.get(x.exerciseId)?.name ?? x.exerciseId}</span>
-                  <span className="text-sm text-ink-2 tabular">
-                    {x.sets.length} × {x.sets[0]?.reps}
-                    {x.sets[0]?.kg ? ` @ ${kg(x.sets[0].kg)} kg` : ""}
-                  </span>
+                  <span className="text-right text-sm text-ink-2 tabular">{exerciseSummary(x)}</span>
                 </li>
               ))}
             </ol>
             {active ? (
               <p className="text-center text-sm text-ink-2">Finish the workout in progress first.</p>
-            ) : (
+            ) : preview.exercises.length ? (
               <Button size="lg" block icon={<PlayIcon />} disabled={starting} onClick={() => start(preview)}>
                 Start {preview.name}
               </Button>
-            )}
+            ) : null}
+            <Button size="lg" block variant="secondary" onClick={() => navigate(`/workouts/${preview.id}`)}>
+              Edit workout
+            </Button>
           </div>
         ) : null}
       </Sheet>
