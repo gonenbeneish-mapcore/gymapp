@@ -54,3 +54,8 @@ export function useMeasurements(kind: MeasureKind): Measurement[] | undefined {
 export function useProfile(): Profile | undefined {
   return useLiveQuery(() => getProfile(), []);
 }
+
+/** `null` = no such workout; `undefined` = still loading. */
+export function useWorkout(id: string | undefined): Workout | null | undefined {
+  return useLiveQuery(async () => (id ? ((await db.workouts.get(id)) ?? null) : null), [id]);
+}

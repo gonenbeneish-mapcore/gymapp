@@ -3,6 +3,7 @@ import { TabBar } from "./ui/TabBar";
 import { TrainPage } from "./pages/TrainPage";
 import { ExercisesPage } from "./pages/ExercisesPage";
 import { ExerciseDetailPage } from "./pages/ExerciseDetailPage";
+import { WorkoutEditorPage } from "./pages/WorkoutEditorPage";
 import { MeasurePage } from "./pages/MeasurePage";
 import { HistoryPage } from "./pages/HistoryPage";
 import { SettingsPage } from "./pages/SettingsPage";
@@ -29,6 +30,7 @@ export default function App() {
         <Route path="/history" element={<HistoryPage />} />
       </Route>
       <Route path="/exercises/:id" element={<ExerciseDetailPage />} />
+      <Route path="/workouts/:id" element={<WorkoutEditorPage />} />
       <Route path="/session" element={<SessionPage />} />
       <Route path="/session/:id/done" element={<SummaryPage />} />
       <Route path="/settings" element={<SettingsPage />} />
