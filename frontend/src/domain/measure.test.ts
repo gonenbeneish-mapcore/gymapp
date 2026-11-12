@@ -37,10 +37,27 @@ describe("trendSeries", () => {
   });
 
   it("trendAt returns the trend as of a time", () => {
-    const s = trendSeries([w(0, 80), w(10, 90)]);
+    const s = trendSeries([w(0, 80), w(1, 90)]);
     expect(trendAt(s, T0 - 1)).toBeUndefined();
-    expect(trendAt(s, T0 + 5 * DAY)).toBe(80);
-    expect(trendAt(s, T0 + 10 * DAY)).toBe(81);
+    expect(trendAt(s, T0 + 0.5 * DAY)).toBe(80);
+    expect(trendAt(s, T0 + 1 * DAY)).toBe(81);
+  });
+
+  it("treats a gap of months as months, so the trend catches up with sparse weigh-ins", () => {
+    // 125 kg in May, then a few readings months apart down to 111 kg.
+    const s = trendSeries([w(0, 125.2), w(60, 120), w(150, 113.5), w(180, 111)]);
+    const last = s[s.length - 1].trend;
+    expect(last).toBeGreaterThan(111);
+    expect(last).toBeLessThan(113);
+    // Each reading pulls the trend most of the way there after a long gap.
+    expect(s[1].trend).toBeLessThan(121.5);
+  });
+
+  it("fills a gap with a straight line, not a jump", () => {
+    // Ten days from 80 to 90: the trend lags behind the line, ending well below 90.
+    const s = trendSeries([w(0, 80), w(10, 90)]);
+    expect(s[1].trend).toBeGreaterThan(83);
+    expect(s[1].trend).toBeLessThan(86);
   });
 });
 

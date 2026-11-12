@@ -12,10 +12,24 @@ function dayKey(at: number): string {
   return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
 }
 
+function startOfDay(at: number): number {
+  const d = new Date(at);
+  return new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+}
+
+/** Whole calendar days from `a` to `b` (safe across daylight-saving changes). */
+function daysBetween(a: number, b: number): number {
+  return Math.round((startOfDay(b) - startOfDay(a)) / DAY);
+}
+
 /**
  * One reading per calendar day (the lowest that day, usually the morning one), oldest first, each with
  * the smoothed trend. Daily scale weight jumps around by a kilo or more from
  * water and food; the trend shows where it is really heading.
+ *
+ * The trend moves 10% toward each day's weight. Days without a weigh-in are filled
+ * with a straight line between the readings on either side, so a gap of weeks
+ * counts as weeks, not as a single day.
  */
 export function trendSeries(entries: Measurement[]): TrendPoint[] {
   const byDay = new Map<string, Measurement>();
@@ -26,9 +40,19 @@ export function trendSeries(entries: Measurement[]): TrendPoint[] {
   }
   const out: TrendPoint[] = [];
   let trend: number | undefined;
-  for (const e of byDay.values()) {
-    trend = trend === undefined ? e.value : trend + TREND_SMOOTHING * (e.value - trend);
+  let prev: Measurement | undefined;
+  for (const e of [...byDay.values()].sort((a, b) => a.at - b.at)) {
+    if (trend === undefined || !prev) {
+      trend = e.value;
+    } else {
+      const gap = Math.max(1, daysBetween(prev.at, e.at));
+      for (let k = 1; k <= gap; k++) {
+        const day = prev.value + ((e.value - prev.value) * k) / gap;
+        trend += TREND_SMOOTHING * (day - trend);
+      }
+    }
     out.push({ at: e.at, value: e.value, trend });
+    prev = e;
   }
   return out;
 }
