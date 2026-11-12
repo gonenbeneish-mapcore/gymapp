@@ -150,3 +150,12 @@ export function signed(n: number, decimals = 1): string {
   if (r === 0) return (0).toFixed(decimals);
   return (n < 0 ? "−" : "+") + r.toFixed(decimals);
 }
+
+/**
+ * The shortest chart range (in days, `choices` ascending) that shows everything
+ * since the oldest reading; the longest one if the history is longer still.
+ */
+export function fittingRange(oldestAt: number, now: number, choices: number[]): number {
+  const span = (now - oldestAt) / DAY;
+  return choices.find((d) => span <= d) ?? choices[choices.length - 1];
+}
