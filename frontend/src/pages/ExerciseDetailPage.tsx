@@ -1,4 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
+import { NumberPadSheet } from "../ui/NumberPad";
+import { savePlateKg } from "../data/sessions";
 import { Navigate, useLocation, useNavigate, useParams } from "react-router-dom";
 import { GroupedList, ListRow } from "../ui/list";
 import { ChevronLeftIcon, PlayIcon } from "../ui/icons";
@@ -75,7 +77,7 @@ function Detail({ exercise: e }: { exercise: Exercise }) {
           ) : null}
         </section>
 
-        {e.machine ? <MachineInfo spec={e.machine} /> : null}
+        {e.equipment === "machine" ? <MachineInfo exerciseId={e.id} spec={e.machine ?? {}} plateKg={note?.plateKg} /> : null}
 
         {history ? <YourHistory times={history.times} last={history.last} best={history.best} /> : null}
 
@@ -194,12 +196,14 @@ function MuscleLegend() {
   );
 }
 
-function MachineInfo({ spec }: { spec: MachineSpec }) {
+function MachineInfo({ exerciseId, spec, plateKg }: { exerciseId: string; spec: MachineSpec; plateKg?: number }) {
+  const [editing, setEditing] = useState(false);
   const rows: [string, string][] = [];
   if (spec.stackKg) rows.push(["Weight stack", `Up to ${kg(spec.stackKg)} kg`]);
   if (spec.addOnKg) rows.push(["Add-on weight", `+${kg(spec.addOnKg)} kg with the lever`]);
   if (spec.adjust) rows.push(["Adjust", spec.adjust.length ? spec.adjust.join(" · ") : "Nothing to adjust, just sit and go"]);
-  if (!rows.length) return null;
+  const plate = plateKg ?? spec.plateKg;
+  const fromSpec = rows.length > 0;
   return (
     <section aria-labelledby="machine" className="flex flex-col gap-2.5 rounded-panel bg-surface p-4">
       <h2 id="machine" className="text-[15px] font-bold">
@@ -211,7 +215,35 @@ function MachineInfo({ spec }: { spec: MachineSpec }) {
           <span className="text-ink">{value}</span>
         </div>
       ))}
-      <p className="text-xs text-ink-3">From the maker's specs for the current model. Older machines can differ.</p>
+      <button type="button" onClick={() => setEditing(true)} className="flex items-baseline gap-3 text-left text-[15px]">
+        <span className="w-[104px] shrink-0 text-[13px] font-semibold text-ink-3">Plate weight</span>
+        {plate ? (
+          <span className="text-ink">
+            {kg(plate)} kg a plate <span className="text-[13px] font-semibold text-accent-text">· change</span>
+          </span>
+        ) : (
+          <span className="font-semibold text-accent-text">Add it (check one plate at the gym)</span>
+        )}
+      </button>
+      <p className="text-xs text-ink-3">
+        {plate ? "Used to suggest the next weight this machine can really make. " : "With it, the app suggests weights this machine can really make. "}
+        {fromSpec ? "The other details are from the maker's specs for the current model; older machines can differ." : ""}
+      </p>
+      {editing ? (
+        <NumberPadSheet
+          open
+          title="Weight of one plate"
+          unit="kg"
+          initial={plate ? kg(plate) : ""}
+          options={{ decimals: 2, maxInt: 2, step: 0.5 }}
+          onClose={() => setEditing(false)}
+          onDone={(v) => {
+            setEditing(false);
+            const n = Number.parseFloat(v);
+            void savePlateKg(exerciseId, Number.isFinite(n) && n > 0 && n <= 25 ? n : undefined);
+          }}
+        />
+      ) : null}
     </section>
   );
 }

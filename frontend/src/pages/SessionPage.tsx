@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import clsx from "clsx";
 import { useActiveSession, useCompletedSessions, useExerciseMap, useNotesMap } from "../data/hooks";
-import { WEIGHT_STEP, addWeightHint } from "../domain/progression";
+import { addWeightHint } from "../domain/progression";
 import { discardSession, finishSession, saveSetup, updateSession } from "../data/sessions";
 import type { Session, SessionSet } from "../data/types";
 import {
@@ -72,7 +72,12 @@ function ActiveSession({
     : null;
   const hint =
     ex && info && completed
-      ? addWeightHint(ex, lastPerformance(ex.exerciseId, completed.filter((c) => c.id !== session.id)), WEIGHT_STEP[info.equipment])
+      ? addWeightHint(ex, lastPerformance(ex.exerciseId, completed.filter((c) => c.id !== session.id)), {
+          equipment: info.equipment,
+          plateKg: notes.get(ex.exerciseId)?.plateKg ?? info.machine?.plateKg,
+          addOnKg: info.machine?.addOnKg,
+          stackKg: info.machine?.stackKg,
+        })
       : null;
   const firstOpen = ex ? ex.sets.findIndex((s) => !s.done) : -1;
   const completeCount = session.exercises.filter(isExerciseComplete).length;
@@ -199,18 +204,32 @@ function ActiveSession({
             className="flex items-center gap-3 rounded-[18px] bg-accent-soft px-4 py-3 animate-rise"
           >
             <div className="min-w-0 flex-1 text-sm text-ink">
-              <div className="font-bold text-accent-text">Time to go heavier</div>
+              <div className="font-bold text-accent-text">
+                {hint.next.how === "top" ? "Top of the stack" : "Time to go heavier"}
+              </div>
               <div className="mt-0.5 text-ink-2">
                 Last time you hit {hint.topReps}+ reps on every set at {kg(hint.lastKg)} kg.
+                {hint.next.how === "top"
+                  ? " This machine can't go heavier, so add reps or slow the lowering down."
+                  : hint.next.how === "add-on"
+                    ? " Flip the add-on lever."
+                    : hint.next.how === "plate"
+                      ? " Move the pin one plate down."
+                      : ""}
               </div>
             </div>
-            <button
-              type="button"
-              onClick={() => void update((s) => applyWeight(s, cur, hint.suggestKg))}
-              className="h-11 shrink-0 rounded-[14px] bg-accent px-3.5 text-sm font-bold text-accent-ink"
-            >
-              Use {kg(hint.suggestKg)} kg
-            </button>
+            {hint.next.how !== "top" ? (
+              <button
+                type="button"
+                onClick={() => {
+                  const next = hint.next;
+                  if (next.how !== "top") void update((s) => applyWeight(s, cur, next.kg));
+                }}
+                className="h-11 shrink-0 rounded-[14px] bg-accent px-3.5 text-sm font-bold text-accent-ink"
+              >
+                Use {kg(hint.next.kg)} kg
+              </button>
+            ) : null}
           </section>
         ) : null}
 

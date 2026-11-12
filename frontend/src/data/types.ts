@@ -36,6 +36,8 @@ export type MachineSpec = {
   stackKg?: number;
   /** Extra weight a lever adds on top of the selected plate, in kg. */
   addOnKg?: number;
+  /** Weight of one plate on the stack, in kg, when the maker lists it. */
+  plateKg?: number;
   /** What can be adjusted before a set; [] = nothing to adjust. */
   adjust?: string[];
 };
@@ -63,6 +65,8 @@ export type Exercise = {
 export type ExerciseNote = {
   exerciseId: string;
   mySetup?: string;
+  /** Weight of one plate on this machine's stack, as measured at the gym. */
+  plateKg?: number;
 };
 
 export type SetType = "normal" | "warmup" | "drop" | "failure";
