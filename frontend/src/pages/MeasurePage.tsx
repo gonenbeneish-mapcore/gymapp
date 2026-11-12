@@ -1,3 +1,4 @@
+import clsx from "clsx";
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { Screen, ScreenHeader, Section } from "../ui/layout";
@@ -120,7 +121,7 @@ export function MeasurePage() {
             className="w-full"
             options={(Object.keys(RANGE_DAYS) as Range[]).map((r) => ({ value: r, label: r }))}
           />
-          <WeightChart series={series} days={RANGE_DAYS[range]} now={now} />
+          <WeightChart series={series} days={RANGE_DAYS[range]} now={now} goalKg={profile.goalKg} />
           <BmiCard weightKg={series[series.length - 1].trend} heightCm={profile.heightCm} />
           <Tiles
             series={series}
@@ -281,7 +282,17 @@ function TrendCard({ series, profile, now }: { series: TrendPoint[]; profile: Pr
   );
 }
 
-function WeightChart({ series, days, now }: { series: TrendPoint[]; days: number; now: number }) {
+function WeightChart({
+  series,
+  days,
+  now,
+  goalKg,
+}: {
+  series: TrendPoint[];
+  days: number;
+  now: number;
+  goalKg?: number;
+}) {
   const W = 300;
   const H = 170;
   const start = now - days * DAY;
@@ -298,7 +309,15 @@ function WeightChart({ series, days, now }: { series: TrendPoint[]; days: number
     );
   }
 
+  const last = inRange[inRange.length - 1];
+  // Forecast: the current weekly rate carried forward for a fifth of the range (about 2 weeks on 3M).
+  const rate = weeklyRate(series, now);
+  const forecastDays = rate !== null ? Math.max(7, Math.round(days / 5)) : 0;
+  const end = now + forecastDays * DAY;
+  const forecastEnd = rate !== null ? last.trend + (rate * (end - last.at)) / (7 * DAY) : null;
+
   const values = inRange.flatMap((p) => [p.value, p.trend]);
+  if (forecastEnd !== null) values.push(forecastEnd);
   let lo = Math.min(...values) - 0.3;
   let hi = Math.max(...values) + 0.3;
   if (hi - lo < 1) {
@@ -306,16 +325,30 @@ function WeightChart({ series, days, now }: { series: TrendPoint[]; days: number
     lo = mid - 0.5;
     hi = mid + 0.5;
   }
-  const x = (t: number) => 4 + ((t - start) / (now - start)) * (W - 8);
+  // Stretch the range to show the goal when it is close; otherwise point to it from the edge.
+  let goalEdge: "above" | "below" | null = null;
+  if (goalKg != null) {
+    const span = hi - lo;
+    if (goalKg < lo) {
+      if (lo - goalKg <= span * 0.5) lo = goalKg - 0.3;
+      else goalEdge = "below";
+    } else if (goalKg > hi) {
+      if (goalKg - hi <= span * 0.5) hi = goalKg + 0.3;
+      else goalEdge = "above";
+    }
+  }
+  const showGoalLine = goalKg != null && goalEdge === null;
+
+  const x = (t: number) => 4 + ((t - start) / (end - start)) * (W - 8);
   const y = (v: number) => 4 + ((hi - v) / (hi - lo)) * (H - 8);
+  const pct = (v: number, of: number) => `${(v / of) * 100}%`;
   const r = days > 120 ? 1.8 : 2.6;
   const trendPath = linePoints.map((p, i) => `${i ? "L" : "M"}${x(p.at).toFixed(1)} ${y(p.trend).toFixed(1)}`).join(" ");
-  const last = inRange[inRange.length - 1];
   const fmt = (t: number) => new Date(t).toLocaleDateString("en-GB", { day: "numeric", month: "short" });
 
   return (
     <section aria-label="Weight chart" className="flex flex-col gap-2 rounded-panel bg-surface px-3.5 pb-3 pt-4">
-      <div className="flex gap-3.5 text-xs font-semibold text-ink-2" aria-hidden="true">
+      <div className="flex flex-wrap gap-x-3.5 gap-y-1 text-xs font-semibold text-ink-2" aria-hidden="true">
         <span className="flex items-center gap-1.5">
           <span className="h-[3px] w-4 rounded bg-[var(--muscle-hit)]" />
           Trend
@@ -324,6 +357,18 @@ function WeightChart({ series, days, now }: { series: TrendPoint[]; days: number
           <span className="h-[7px] w-[7px] rounded-full bg-ink-3" />
           Weigh-ins
         </span>
+        {forecastEnd !== null ? (
+          <span className="flex items-center gap-1.5">
+            <span className="w-4 border-t-[3px] border-dotted border-[var(--muscle-hit)]" />
+            Forecast
+          </span>
+        ) : null}
+        {goalKg != null ? (
+          <span className="flex items-center gap-1.5">
+            <span className="w-4 border-t-2 border-dashed border-record" />
+            Goal
+          </span>
+        ) : null}
       </div>
       <div className="flex gap-1.5">
         <div className="flex h-[170px] w-8 shrink-0 flex-col justify-between text-right text-[11px] text-ink-3 tabular" aria-hidden="true">
@@ -331,40 +376,102 @@ function WeightChart({ series, days, now }: { series: TrendPoint[]; days: number
           <span>{r1((hi + lo) / 2)}</span>
           <span>{r1(lo)}</span>
         </div>
-        <svg
-          viewBox={`0 0 ${W} ${H}`}
-          preserveAspectRatio="none"
-          className="h-[170px] min-w-0 flex-1"
-          role="img"
-          aria-label={`Trend weight over the last ${days} days, from ${r1(linePoints[0].trend)} to ${r1(last.trend)} kg`}
-        >
-          <defs>
-            <clipPath id="chart-area">
-              <rect x="0" y="0" width={W} height={H} />
-            </clipPath>
-          </defs>
-          <path d={`M0 4H${W}M0 ${H / 2}H${W}M0 ${H - 4}H${W}`} stroke="var(--divider)" strokeWidth="1" fill="none" vectorEffect="non-scaling-stroke" />
-          <g fill="var(--text-3)">
-            {inRange.map((p) => (
-              <ellipse key={p.at} cx={x(p.at)} cy={y(p.value)} rx={r} ry={r} />
-            ))}
-          </g>
-          <path
-            d={trendPath}
-            clipPath="url(#chart-area)"
-            fill="none"
-            stroke="var(--muscle-hit)"
-            strokeWidth="3"
-            strokeLinejoin="round"
-            strokeLinecap="round"
-            vectorEffect="non-scaling-stroke"
-          />
-        </svg>
+        <div className="relative h-[170px] min-w-0 flex-1">
+          <svg
+            viewBox={`0 0 ${W} ${H}`}
+            preserveAspectRatio="none"
+            className="h-full w-full"
+            role="img"
+            aria-label={
+              `Trend weight over the last ${days} days, from ${r1(linePoints[0].trend)} to ${r1(last.trend)} kg` +
+              (forecastEnd !== null ? `, heading for ${r1(forecastEnd)} kg in ${forecastDays} days` : "") +
+              (goalKg != null ? `. Goal ${r1(goalKg)} kg` : "")
+            }
+          >
+            <defs>
+              <clipPath id="chart-area">
+                <rect x="0" y="0" width={W} height={H} />
+              </clipPath>
+            </defs>
+            <path d={`M0 4H${W}M0 ${H / 2}H${W}M0 ${H - 4}H${W}`} stroke="var(--divider)" strokeWidth="1" fill="none" vectorEffect="non-scaling-stroke" />
+            {forecastDays ? (
+              <path d={`M${x(now)} 0V${H}`} stroke="var(--divider)" strokeWidth="1" fill="none" vectorEffect="non-scaling-stroke" />
+            ) : null}
+            {showGoalLine ? (
+              <path
+                d={`M0 ${y(goalKg!)}H${W}`}
+                stroke="var(--record)"
+                strokeWidth="1.5"
+                strokeDasharray="6 5"
+                fill="none"
+                vectorEffect="non-scaling-stroke"
+              />
+            ) : null}
+            <g fill="var(--text-3)">
+              {inRange.map((p) => (
+                <ellipse key={p.at} cx={x(p.at)} cy={y(p.value)} rx={r} ry={r} />
+              ))}
+            </g>
+            <path
+              d={trendPath}
+              clipPath="url(#chart-area)"
+              fill="none"
+              stroke="var(--muscle-hit)"
+              strokeWidth="3"
+              strokeLinejoin="round"
+              strokeLinecap="round"
+              vectorEffect="non-scaling-stroke"
+            />
+            {forecastEnd !== null ? (
+              <path
+                d={`M${x(last.at)} ${y(last.trend)}L${x(end)} ${y(forecastEnd)}`}
+                stroke="var(--muscle-hit)"
+                strokeWidth="3"
+                strokeDasharray="1 6"
+                strokeLinecap="round"
+                fill="none"
+                vectorEffect="non-scaling-stroke"
+              />
+            ) : null}
+          </svg>
+          {showGoalLine ? (
+            <span
+              className="absolute right-1 -translate-y-full rounded bg-surface px-1 text-[11px] font-bold text-record-text"
+              style={{ top: pct(y(goalKg!) - 2, H) }}
+              aria-hidden="true"
+            >
+              Goal {r1(goalKg!)}
+            </span>
+          ) : null}
+          {goalEdge ? (
+            <span
+              className={clsx(
+                // Bottom-left when the goal is below (the line starts high there), top-left when above.
+                "absolute left-1 rounded bg-surface px-1 text-[11px] font-bold text-record-text",
+                goalEdge === "below" ? "bottom-0" : "top-0",
+              )}
+              aria-hidden="true"
+            >
+              Goal {r1(goalKg!)} kg {goalEdge === "below" ? "↓" : "↑"}
+            </span>
+          ) : null}
+        </div>
       </div>
-      <div className="flex justify-between pl-[38px] text-[11px] text-ink-3" aria-hidden="true">
-        <span>{fmt(start)}</span>
-        <span>{fmt((start + now) / 2)}</span>
-        <span>Today</span>
+      <div className="relative ml-[38px] h-4 text-[11px] text-ink-3" aria-hidden="true">
+        <span className="absolute left-0">{fmt(start)}</span>
+        {forecastDays ? (
+          <>
+            <span className="absolute left-1/2 -translate-x-1/2">{fmt((start + now) / 2)}</span>
+            <span className="absolute -translate-x-1/2" style={{ left: pct(x(now), W) }}>
+              Today
+            </span>
+          </>
+        ) : (
+          <>
+            <span className="absolute left-1/2 -translate-x-1/2">{fmt((start + now) / 2)}</span>
+            <span className="absolute right-0">Today</span>
+          </>
+        )}
       </div>
     </section>
   );
