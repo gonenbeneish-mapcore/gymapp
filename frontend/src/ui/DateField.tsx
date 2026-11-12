@@ -3,8 +3,8 @@ import { dateLabel } from "../domain/dates";
 
 
 /**
- * A date that looks like a button. Tapping it opens the phone's own date wheel
- * (a native date input sits invisibly on top), so no keyboard appears.
+ * A date that looks like a button. Tapping it opens the browser's own date picker
+ * (a native date input sits invisibly on top): a wheel on iPhone, a calendar on desktop.
  */
 export function DateField({
   value,
@@ -30,6 +30,15 @@ export function DateField({
         required
         onChange={(e) => {
           if (e.target.value) onChange(e.target.value > max ? max : e.target.value);
+        }}
+        // A tap on the field opens the picker on iPhone by itself, but desktop browsers
+        // (Chrome, Brave, Edge) only open it from their own small calendar icon, so ask for it.
+        onClick={(e) => {
+          try {
+            e.currentTarget.showPicker();
+          } catch {
+            // Already open, or not supported: the browser's own behaviour applies.
+          }
         }}
         className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
       />
