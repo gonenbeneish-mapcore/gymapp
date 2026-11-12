@@ -1,5 +1,5 @@
 import Dexie, { type EntityTable } from "dexie";
-import type { Exercise, ExerciseNote, Session, Workout } from "./types";
+import type { Exercise, ExerciseNote, Measurement, Session, Workout } from "./types";
 import { withEntryKeys } from "../domain/session";
 
 export class GymDB extends Dexie {
@@ -7,6 +7,7 @@ export class GymDB extends Dexie {
   exerciseNotes!: EntityTable<ExerciseNote, "exerciseId">;
   workouts!: EntityTable<Workout, "id">;
   sessions!: EntityTable<Session, "id">;
+  measurements!: EntityTable<Measurement, "id">;
   meta!: EntityTable<{ key: string; value: unknown }, "key">;
 
   constructor(name = "gymapp") {
@@ -27,6 +28,8 @@ export class GymDB extends Dexie {
           s.exercises = withEntryKeys(s).exercises;
         }),
     );
+    // v3: body measurements (weigh-ins, waist).
+    this.version(3).stores({ measurements: "id, at, [kind+at]" });
   }
 }
 

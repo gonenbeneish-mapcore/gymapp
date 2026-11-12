@@ -15,6 +15,7 @@ import {
   type ThemePref,
 } from "../lib/appearance";
 import { BackupSection } from "./BackupSection";
+import { BodySection } from "./BodySection";
 
 export function SettingsPage() {
   const [theme, setTheme] = useState<ThemePref>(getTheme);
@@ -29,6 +30,8 @@ export function SettingsPage() {
         </Link>
         <h1 className="font-display text-[34px] font-bold leading-[1.05] tracking-[-0.03em]">Settings</h1>
       </header>
+
+      <BodySection />
 
       <BackupSection />
 
@@ -80,7 +83,6 @@ export function SettingsPage() {
 
       <Section title="Coming in later steps">
         <GroupedList>
-          <ListRow title="Height and goal weight" subtitle="Used by the Measure tab" />
           <ListRow title="Default rest and screen-on" subtitle="Workout options" />
         </GroupedList>
       </Section>
