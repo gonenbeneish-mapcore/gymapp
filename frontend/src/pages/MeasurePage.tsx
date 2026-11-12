@@ -7,6 +7,8 @@ import { Segmented } from "../ui/controls";
 import { MeasureIcon, PlusIcon } from "../ui/icons";
 import { NumberPadSheet } from "../ui/NumberPad";
 import { Sheet } from "../ui/Sheet";
+import { DateField } from "../ui/DateField";
+import { fromDateInput, toDateInput } from "../domain/dates";
 import { useMeasurements, useProfile } from "../data/hooks";
 import { addMeasurement, deleteMeasurement, updateMeasurement } from "../data/measure";
 import type { MeasureKind, Measurement, Profile } from "../data/types";
@@ -38,7 +40,17 @@ const LIMITS: Record<MeasureKind, { min: number; max: number; unit: string }> = 
 
 const r1 = (n: number) => n.toFixed(1);
 
-type PadTarget = { kind: MeasureKind; edit?: Measurement };
+/** What the number pad is logging: a kind, the chosen day ("2026-11-12") and, when editing, the entry. */
+type PadTarget = { kind: MeasureKind; date: string; edit?: Measurement };
+
+/** When to timestamp an entry for `date`: now for today, its own time if the day didn't change, else 08:00. */
+function timeFor(target: PadTarget): number {
+  if (target.edit && toDateInput(target.edit.at) === target.date) return target.edit.at;
+  if (target.date === toDateInput(Date.now())) return Date.now();
+  const d = fromDateInput(target.date);
+  d.setHours(8, 0, 0, 0);
+  return d.getTime();
+}
 
 export function MeasurePage() {
   const weights = useMeasurements("weight");
@@ -63,11 +75,19 @@ export function MeasurePage() {
       return;
     }
     setError(null);
-    if (target.edit) await updateMeasurement(target.edit.id, value);
-    else await addMeasurement(target.kind, value);
+    const at = timeFor(target);
+    if (target.edit) await updateMeasurement(target.edit.id, value, at);
+    else await addMeasurement(target.kind, value, at);
   }
 
-  const openWeighIn = () => setPad({ kind: "weight" });
+  // The latest day you can pick; refreshed whenever a sheet opens.
+  const [today, setToday] = useState(() => toDateInput(now));
+  const openPad = (kind: MeasureKind) => {
+    const d = toDateInput(Date.now());
+    setToday(d);
+    setPad({ kind, date: d });
+  };
+  const openWeighIn = () => openPad("weight");
 
   return (
     <Screen className="gap-4">
@@ -107,7 +127,7 @@ export function MeasurePage() {
             waists={waists ?? []}
             heightCm={profile.heightCm}
             now={now}
-            onLogWaist={() => setPad({ kind: "waist" })}
+            onLogWaist={() => openPad("waist")}
           />
           <RecentWeighIns series={series} entries={weights ?? []} now={now} onPick={setEditing} />
         </>
@@ -120,6 +140,14 @@ export function MeasurePage() {
           unit={LIMITS[pad.kind].unit}
           initial={r1(pad.edit?.value ?? (pad.kind === "weight" ? lastWeight?.value : lastWaist?.value) ?? 0).replace(/\.0$/, "")}
           options={{ decimals: 1, maxInt: 3, step: pad.kind === "weight" ? 0.1 : 0.5 }}
+          header={
+            <DateField
+              label={pad.kind === "weight" ? "Weigh-in date" : "Measurement date"}
+              value={pad.date}
+              max={today}
+              onChange={(date) => setPad((p) => (p ? { ...p, date } : p))}
+            />
+          }
           onClose={() => setPad(null)}
           onDone={(v) => {
             const target = pad;
@@ -146,10 +174,10 @@ export function MeasurePage() {
               onClick={() => {
                 const m = editing;
                 setEditing(null);
-                setPad({ kind: "weight", edit: m });
+                setPad({ kind: "weight", date: toDateInput(m.at), edit: m });
               }}
             >
-              Change weight
+              Change weight or date
             </Button>
             <Button
               size="lg"
@@ -207,7 +235,7 @@ function TrendCard({ series, profile, now }: { series: TrendPoint[]; profile: Pr
             <span className="text-lg text-ink-3"> kg</span>
           </div>
           <div className="mt-1.5 text-[13px] text-ink-2">
-            Scale {whenShort(last.at, now).toLowerCase()}: {r1(last.value)} kg
+            {lastReadingLabel(last.at, now)}: {r1(last.value)} kg
           </div>
         </div>
         <div className="text-right">
@@ -497,6 +525,12 @@ function RecentWeighIns({
       </GroupedList>
     </Section>
   );
+}
+
+/** "Scale today", "Scale yesterday" or "Last weigh-in Fri 6 Nov". */
+function lastReadingLabel(at: number, now: number): string {
+  const w = whenShort(at, now);
+  return w === "Today" || w === "Yesterday" ? `Scale ${w.toLowerCase()}` : `Last weigh-in ${w}`;
 }
 
 function whenShort(at: number, now: number): string {

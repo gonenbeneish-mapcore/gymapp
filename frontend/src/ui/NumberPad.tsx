@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { Button } from "./Button";
 import { BackspaceIcon } from "./icons";
 import { Sheet } from "./Sheet";
@@ -16,9 +16,12 @@ export function NumberPadSheet({
   onClose,
   onDone,
   options = {},
+  header,
 }: {
   open: boolean;
   title: string;
+  /** Shown under the title, e.g. a date picker. */
+  header?: ReactNode;
   unit?: string;
   initial: string;
   onClose: () => void;
@@ -28,7 +31,7 @@ export function NumberPadSheet({
   return (
     <Sheet open={open} onClose={onClose} title={title}>
       {open ? (
-        <PadBody title={title} unit={unit} initial={initial} onDone={onDone} options={options} />
+        <PadBody title={title} unit={unit} initial={initial} onDone={onDone} options={options} header={header} />
       ) : null}
     </Sheet>
   );
@@ -40,12 +43,14 @@ function PadBody({
   initial,
   onDone,
   options,
+  header,
 }: {
   title: string;
   unit?: string;
   initial: string;
   onDone: (value: string) => void;
   options: NumberPadOptions;
+  header?: ReactNode;
 }) {
   const [value, setValue] = useState(initial);
   const [fresh, setFresh] = useState(true);
@@ -56,6 +61,7 @@ function PadBody({
   return (
     <div className="flex flex-col gap-4">
       <h2 className="text-center text-[17px] font-bold">{title}</h2>
+      {header}
       <div className="flex items-center justify-center gap-3.5">
         <button
           type="button"

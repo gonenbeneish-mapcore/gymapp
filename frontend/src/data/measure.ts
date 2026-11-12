@@ -9,8 +9,8 @@ export async function addMeasurement(kind: MeasureKind, value: number, at = Date
   return id;
 }
 
-export async function updateMeasurement(id: string, value: number, db: GymDB = defaultDb): Promise<void> {
-  await db.measurements.update(id, { value });
+export async function updateMeasurement(id: string, value: number, at: number, db: GymDB = defaultDb): Promise<void> {
+  await db.measurements.update(id, { value, at });
 }
 
 export async function deleteMeasurement(id: string, db: GymDB = defaultDb): Promise<void> {

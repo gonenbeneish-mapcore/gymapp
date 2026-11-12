@@ -13,13 +13,17 @@ function dayKey(at: number): string {
 }
 
 /**
- * One reading per calendar day (the last one that day), oldest first, each with
+ * One reading per calendar day (the lowest that day, usually the morning one), oldest first, each with
  * the smoothed trend. Daily scale weight jumps around by a kilo or more from
  * water and food; the trend shows where it is really heading.
  */
 export function trendSeries(entries: Measurement[]): TrendPoint[] {
   const byDay = new Map<string, Measurement>();
-  for (const e of [...entries].sort((a, b) => a.at - b.at)) byDay.set(dayKey(e.at), e);
+  for (const e of [...entries].sort((a, b) => a.at - b.at)) {
+    const key = dayKey(e.at);
+    const kept = byDay.get(key);
+    if (!kept || e.value < kept.value) byDay.set(key, e);
+  }
   const out: TrendPoint[] = [];
   let trend: number | undefined;
   for (const e of byDay.values()) {

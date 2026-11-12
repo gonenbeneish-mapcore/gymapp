@@ -31,9 +31,9 @@ describe("trendSeries", () => {
     expect(s.map((p) => p.trend)).toEqual([80, 81]);
   });
 
-  it("keeps only the last reading of each day, oldest first", () => {
+  it("keeps the lowest reading of each day, oldest first", () => {
     const s = trendSeries([w(1, 79), w(0, 80, 7), w(0, 81, 20)]);
-    expect(s.map((p) => p.value)).toEqual([81, 79]);
+    expect(s.map((p) => p.value)).toEqual([80, 79]);
   });
 
   it("trendAt returns the trend as of a time", () => {
