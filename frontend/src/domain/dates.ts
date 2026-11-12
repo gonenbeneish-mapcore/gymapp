@@ -24,3 +24,22 @@ export function dateLabel(value: string, today: string): string {
   }
   return pretty;
 }
+
+/** "2026-11" → the weeks of that month, Monday first; days outside the month are null. */
+export function monthGrid(year: number, month: number): (string | null)[][] {
+  const first = new Date(year, month, 1);
+  const lead = (first.getDay() + 6) % 7; // Monday = 0
+  const days = new Date(year, month + 1, 0).getDate();
+  const cells: (string | null)[] = Array.from({ length: lead }, () => null);
+  for (let d = 1; d <= days; d++) cells.push(toDateInput(new Date(year, month, d).getTime()));
+  while (cells.length % 7) cells.push(null);
+  const weeks: (string | null)[][] = [];
+  for (let i = 0; i < cells.length; i += 7) weeks.push(cells.slice(i, i + 7));
+  return weeks;
+}
+
+/** Year and month (0–11) moved by `delta` months. */
+export function shiftMonth(year: number, month: number, delta: number): { year: number; month: number } {
+  const d = new Date(year, month + delta, 1);
+  return { year: d.getFullYear(), month: d.getMonth() };
+}

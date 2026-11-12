@@ -146,6 +146,7 @@ export function MeasurePage() {
               value={pad.date}
               max={today}
               onChange={(date) => setPad((p) => (p ? { ...p, date } : p))}
+              marked={new Set((pad.kind === "weight" ? weights : waists)?.map((m) => toDateInput(m.at)))}
             />
           }
           onClose={() => setPad(null)}

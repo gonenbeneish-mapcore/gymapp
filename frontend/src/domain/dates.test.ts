@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { dateLabel, fromDateInput, toDateInput } from "./dates";
+import { dateLabel, fromDateInput, monthGrid, shiftMonth, toDateInput } from "./dates";
 
 describe("date field helpers", () => {
   it("round-trips local dates", () => {
@@ -15,5 +15,21 @@ describe("date field helpers", () => {
     expect(dateLabel("2025-12-31", "2026-01-01")).toMatch(/^Yesterday/);
     expect(dateLabel("2026-11-03", "2026-11-12")).not.toMatch(/Today|Yesterday|2026/);
     expect(dateLabel("2025-11-03", "2026-11-12")).toMatch(/2025/);
+  });
+});
+
+describe("month grid", () => {
+  it("starts weeks on Monday and pads with empty cells", () => {
+    // November 2026 starts on a Sunday.
+    const weeks = monthGrid(2026, 10);
+    expect(weeks[0]).toEqual([null, null, null, null, null, null, "2026-11-01"]);
+    expect(weeks.at(-1)).toEqual(["2026-11-30", null, null, null, null, null, null]);
+    expect(weeks.flat().filter(Boolean)).toHaveLength(30);
+  });
+
+  it("handles leap years and moving across years", () => {
+    expect(monthGrid(2028, 1).flat().filter(Boolean)).toHaveLength(29);
+    expect(shiftMonth(2026, 0, -1)).toEqual({ year: 2025, month: 11 });
+    expect(shiftMonth(2026, 11, 1)).toEqual({ year: 2027, month: 0 });
   });
 });
