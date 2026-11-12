@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { db as defaultDb, type GymDB } from "./db";
-import type { Exercise, ExerciseNote, Session, Workout } from "./types";
+import type { Exercise, ExerciseNote, Measurement, Profile, Session, Workout } from "./types";
 import { withEntryKeys } from "../domain/session";
 
 export const BACKUP_FORMAT = "gymapp-backup";
@@ -16,6 +16,9 @@ export type Backup = {
     sessions: Session[];
     exerciseNotes: ExerciseNote[];
     customExercises: Exercise[];
+    /** Missing in backups made before the Measure tab. */
+    measurements?: Measurement[];
+    profile?: Profile;
   };
 };
 
@@ -98,11 +101,15 @@ const backupSchema = z.object({
     sessions: z.array(sessionSchema),
     exerciseNotes: z.array(z.object({ exerciseId: z.string(), mySetup: z.string().optional() })),
     customExercises: z.array(exerciseSchema),
+    measurements: z
+      .array(z.object({ id: z.string(), kind: z.enum(["weight", "waist"]), value: z.number(), at: z.number() }))
+      .optional(),
+    profile: z.object({ heightCm: z.number().optional(), goalKg: z.number().optional() }).optional(),
   }),
 });
 
 export async function createBackup(db: GymDB = defaultDb, now = Date.now()): Promise<Backup> {
-  return db.transaction("r", db.workouts, db.sessions, db.exerciseNotes, db.exercises, async () => ({
+  return db.transaction("r", [db.workouts, db.sessions, db.exerciseNotes, db.exercises, db.measurements, db.meta], async () => ({
     format: BACKUP_FORMAT,
     version: BACKUP_VERSION,
     exportedAt: now,
@@ -111,6 +118,8 @@ export async function createBackup(db: GymDB = defaultDb, now = Date.now()): Pro
       sessions: await db.sessions.toArray(),
       exerciseNotes: await db.exerciseNotes.toArray(),
       customExercises: (await db.exercises.toArray()).filter((e) => !e.builtIn),
+      measurements: await db.measurements.toArray(),
+      profile: ((await db.meta.get("profile"))?.value as Profile | undefined) ?? {},
     },
   }));
 }
@@ -168,8 +177,9 @@ export function summarize(b: Backup): BackupSummary {
  * The built-in exercise catalog is kept as is.
  */
 export async function restoreBackup(b: Backup, db: GymDB = defaultDb): Promise<void> {
-  await db.transaction("rw", [db.workouts, db.sessions, db.exerciseNotes, db.exercises, db.meta], async () => {
+  await db.transaction("rw", [db.workouts, db.sessions, db.exerciseNotes, db.exercises, db.measurements, db.meta], async () => {
     await db.workouts.clear();
+    await db.measurements.clear();
     await db.sessions.clear();
     await db.exerciseNotes.clear();
     const custom = (await db.exercises.toArray()).filter((e) => !e.builtIn).map((e) => e.id);
@@ -181,6 +191,9 @@ export async function restoreBackup(b: Backup, db: GymDB = defaultDb): Promise<v
     await db.exerciseNotes.bulkAdd(b.data.exerciseNotes);
     // A custom exercise never overwrites a built-in one with the same id.
     await db.exercises.bulkAdd(b.data.customExercises.filter((e) => !builtInIds.has(e.id)));
+    await db.measurements.bulkAdd(b.data.measurements ?? []);
+    if (b.data.profile) await db.meta.put({ key: "profile", value: b.data.profile });
+    else await db.meta.delete("profile");
     // Don't re-add starter plans over restored data later.
     await db.meta.put({ key: "starterWorkouts", value: true });
     await db.meta.put({ key: "lastBackupAt", value: b.exportedAt });

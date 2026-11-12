@@ -1,7 +1,8 @@
 import { useLiveQuery } from "dexie-react-hooks";
 import { db } from "./db";
-import type { Exercise, ExerciseNote, Session, Workout } from "./types";
+import type { Exercise, ExerciseNote, MeasureKind, Measurement, Profile, Session, Workout } from "./types";
 import { completedSessions, getActiveSession } from "./sessions";
+import { getProfile, measurementsOf } from "./measure";
 
 export function useWorkouts(): Workout[] | undefined {
   return useLiveQuery(() => db.workouts.orderBy("order").toArray(), []);
@@ -43,4 +44,13 @@ export function useExercise(id: string | undefined): Exercise | null | undefined
 
 export function useExerciseNote(id: string | undefined): ExerciseNote | null | undefined {
   return useLiveQuery(async () => (id ? ((await db.exerciseNotes.get(id)) ?? null) : null), [id]);
+}
+
+/** Oldest first. */
+export function useMeasurements(kind: MeasureKind): Measurement[] | undefined {
+  return useLiveQuery(() => measurementsOf(kind), [kind]);
+}
+
+export function useProfile(): Profile | undefined {
+  return useLiveQuery(() => getProfile(), []);
 }

@@ -12,6 +12,24 @@ export type Muscle =
   | "adductors"
   | "core";
 
+/** What a body measurement records. Weight is in kg, everything else in cm. */
+export type MeasureKind = "weight" | "waist";
+
+/** One weigh-in or tape measurement. */
+export type Measurement = {
+  id: string;
+  kind: MeasureKind;
+  value: number;
+  /** When it was taken (ms since epoch). */
+  at: number;
+};
+
+/** About the user; drives BMI, waist-to-height and the goal bar. */
+export type Profile = {
+  heightCm?: number;
+  goalKg?: number;
+};
+
 /** Facts about a specific machine model (from the maker's spec page). */
 export type MachineSpec = {
   /** Heaviest setting on the weight stack, in kg. */

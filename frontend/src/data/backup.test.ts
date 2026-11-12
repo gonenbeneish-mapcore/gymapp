@@ -97,6 +97,39 @@ function withoutKey<T extends { key?: string }>(e: T): Omit<T, "key"> {
   return copy as Omit<T, "key">;
 }
 
+describe("measurements in backups", () => {
+  it("round-trips weigh-ins, waist and the profile", async () => {
+    const a = await freshDb();
+    await a.measurements.bulkAdd([
+      { id: "m1", kind: "weight", value: 82.4, at: 1000 },
+      { id: "m2", kind: "waist", value: 90, at: 2000 },
+    ]);
+    await a.meta.put({ key: "profile", value: { heightCm: 180, goalKg: 78 } });
+    const parsed = parseBackup(JSON.stringify(await createBackup(a, 5)));
+    expect(parsed.ok).toBe(true);
+    if (!parsed.ok) return;
+
+    const b = await freshDb();
+    await b.measurements.add({ id: "old", kind: "weight", value: 99, at: 1 });
+    await restoreBackup(parsed.backup, b);
+    expect((await b.measurements.toArray()).map((m) => m.id).sort()).toEqual(["m1", "m2"]);
+    expect((await b.meta.get("profile"))?.value).toEqual({ heightCm: 180, goalKg: 78 });
+  });
+
+  it("restores a backup made before measurements existed", async () => {
+    const text = JSON.stringify({ format: "gymapp-backup", version: 1, exportedAt: 1, data: { workouts: [], sessions: [], exerciseNotes: [], customExercises: [] } });
+    const parsed = parseBackup(text);
+    expect(parsed.ok).toBe(true);
+    if (!parsed.ok) return;
+    const b = await freshDb();
+    await b.measurements.add({ id: "x", kind: "weight", value: 80, at: 1 });
+    await b.meta.put({ key: "profile", value: { heightCm: 170 } });
+    await restoreBackup(parsed.backup, b);
+    expect(await b.measurements.count()).toBe(0);
+    expect(await b.meta.get("profile")).toBeUndefined();
+  });
+});
+
 describe("backups from before session keys", () => {
   it("gives old sessions' exercises keys when read", () => {
     const old = { ...session("s1", 1000), exercises: session("s1", 1000).exercises.map((e) => withoutKey(e)) };
